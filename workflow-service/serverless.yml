@@ -74,7 +74,7 @@ resources:
   
   Outputs:
     StateMachineArn:
-      Value: !Ref BurgerStepFunction
+      Value: !Ref BurgerFlowStepFunctionsStateMachine
       Export:
         Name: BurgerFlowArn-${sls:stage}
     UsersTableArn:
