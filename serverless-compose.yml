@@ -1,3 +1,7 @@
+org: ${env:ORG_NAME}
+app: taller-serverless
+stage: dev
+
 services:
   workflow:
     path: workflow-service
