@@ -1,0 +1,113 @@
+{
+    "Comment": "Flujo de pedido de hamburguesas con intervención humana",
+    "StartAt": "ValidarStock",
+    "States": {
+        "ValidarStock": {
+            "Type": "Task",
+            "Resource": "${ValidateStockLambdaFunctionArn}",
+            "Catch": [
+                {
+                    "ErrorEquals": [
+                        "StockError"
+                    ],
+                    "Next": "PedidoFalloStock"
+                }
+            ],
+            "Next": "EsperarConfirmacionCocina"
+        },
+        "PedidoFalloStock": {
+            "Type": "Fail",
+            "Cause": "No hay stock suficiente",
+            "Error": "StockError"
+        },
+        "EsperarConfirmacionCocina": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
+            "Parameters": {
+                "FunctionName": "${RegisterTokenLambdaFunctionArn}",
+                "Payload": {
+                    "taskToken.$": "$$.Task.Token",
+                    "order_id.$": "$.order_id",
+                    "stage": "PENDIENTE_COCINA"
+                }
+            },
+            "Catch": [
+                {
+                    "ErrorEquals": [
+                        "States.Timeout"
+                    ],
+                    "Next": "PedidoExpirado"
+                }
+            ],
+            "Next": "DecisionCocina"
+        },
+        "DecisionCocina": {
+            "Type": "Choice",
+            "Choices": [
+                {
+                    "Variable": "$.decision",
+                    "StringEquals": "RECHAZADO",
+                    "Next": "PedidoRechazadoCocina"
+                },
+                {
+                    "Variable": "$.decision",
+                    "StringEquals": "ACEPTAR",
+                    "Next": "EnPreparacion"
+                }
+            ],
+            "Default": "PedidoRechazadoCocina"
+        },
+        "PedidoRechazadoCocina": {
+            "Type": "Fail",
+            "Cause": "Cocina rechazo el pedido",
+            "Error": "KitchenReject"
+        },
+        "EnPreparacion": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
+            "Parameters": {
+                "FunctionName": "${RegisterTokenLambdaFunctionArn}",
+                "Payload": {
+                    "taskToken.$": "$$.Task.Token",
+                    "order_id.$": "$.order_id",
+                    "stage": "COCINANDO"
+                }
+            },
+            "Next": "EsperarDelivery"
+        },
+        "EsperarDelivery": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
+            "Parameters": {
+                "FunctionName": "${RegisterTokenLambdaFunctionArn}",
+                "Payload": {
+                    "taskToken.$": "$$.Task.Token",
+                    "order_id.$": "$.order_id",
+                    "stage": "LISTO_PARA_RECOJO"
+                }
+            },
+            "Next": "EnCamino"
+        },
+        "EnCamino": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
+            "Parameters": {
+                "FunctionName": "${RegisterTokenLambdaFunctionArn}",
+                "Payload": {
+                    "taskToken.$": "$$.Task.Token",
+                    "order_id.$": "$.order_id",
+                    "stage": "EN_CAMINO"
+                }
+            },
+            "Next": "PedidoEntregado"
+        },
+        "PedidoEntregado": {
+            "Type": "Succeed"
+        },
+        "PedidoExpirado": {
+            "Type": "Fail",
+            "Cause": "El paso expiro (Timeout)",
+            "Error": "Timeout"
+        }
+    }
+}

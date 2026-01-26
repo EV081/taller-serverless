@@ -1,0 +1,54 @@
+service: burger-kitchen
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: python3.13
+  region: us-east-1
+  stage: ${opt:stage, 'dev'}
+  memorySize: 256
+  timeout: 20
+  environment:
+    TABLE_ORDERS: ${env:TABLE_PEDIDOS}
+    TABLE_HISTORIAL_ESTADOS: ${env:TABLE_HISTORIAL_ESTADOS}
+  iam:
+    role: arn:aws:iam::${env:AWS_ACCOUNT_ID}:role/LabRole
+
+
+custom:
+  pythonRequirements:
+    fileName: ../requirements.txt
+
+functions:
+  listKitchenPending:
+    handler: list.list_pending
+    events:
+      - http:
+          path: cocina/pendientes
+          method: get
+          cors: true
+  
+  listKitchenCooking:
+    handler: list.list_cooking
+    events:
+      - http:
+          path: cocina/en-curso
+          method: get
+          cors: true
+
+  confirmKitchen:
+    handler: confirm.confirm
+    events:
+      - http:
+          path: cocina/confirmar
+          method: post
+          cors: true
+
+  completeCooking:
+    handler: complete.complete
+    events:
+      - http:
+          path: cocina/terminar
+          method: post
+          cors: true
