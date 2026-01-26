@@ -1,6 +1,6 @@
 service: burger-order
 
-frameworkVersion: '3'
+frameworkVersion: '>=3'
 
 provider:
   name: aws
