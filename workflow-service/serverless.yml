@@ -1,0 +1,91 @@
+service: burger-workflow
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: python3.13
+  region: us-east-1
+  stage: ${opt:stage, 'dev'}
+  memorySize: 256
+  timeout: 20
+  environment:
+    TABLE_USERS: ${env:TABLE_USUARIOS}
+    TABLE_ORDERS: ${env:TABLE_PEDIDOS}
+    TABLE_PRODUCTS: ${env:TABLE_PRODUCTOS}
+  iam:
+    role: arn:aws:iam::${env:AWS_ACCOUNT_ID}:role/LabRole
+
+
+custom:
+  pythonRequirements:
+    fileName: ../requirements.txt
+
+functions:
+  validateStock:
+    handler: validate_stock.validate_stock
+  
+  registerToken:
+    handler: register_token.register_token
+
+stepFunctions:
+  stateMachines:
+    BurgerFlow:
+      name: BurgerFlow-${sls:stage}
+      file: step-function.json
+
+resources:
+  Resources:
+    UsersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.TABLE_USERS}
+        AttributeDefinitions:
+          - AttributeName: username
+            AttributeType: S
+        KeySchema:
+          - AttributeName: username
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+    OrdersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.TABLE_ORDERS}
+        AttributeDefinitions:
+          - AttributeName: order_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: order_id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+    ProductsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.TABLE_PRODUCTS}
+        AttributeDefinitions:
+          - AttributeName: product_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: product_id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+  
+  Outputs:
+    StateMachineArn:
+      Value: !Ref BurgerStepFunction
+      Export:
+        Name: BurgerFlowArn-${sls:stage}
+    UsersTableArn:
+      Value: !GetAtt UsersTable.Arn
+      Export:
+        Name: UsersTableArn-${sls:stage}
+    OrdersTableArn:
+      Value: !GetAtt OrdersTable.Arn
+      Export:
+        Name: OrdersTableArn-${sls:stage}
+    ProductsTableArn:
+      Value: !GetAtt ProductsTable.Arn
+      Export:
+        Name: ProductsTableArn-${sls:stage}

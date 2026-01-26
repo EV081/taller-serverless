@@ -1,0 +1,43 @@
+service: burger-order
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: python3.13
+  region: us-east-1
+  stage: ${opt:stage, 'dev'}
+  memorySize: 256
+  timeout: 20
+  environment:
+    TABLE_ORDERS: ${env:TABLE_PEDIDOS}
+    TABLE_USERS: ${env:TABLE_USUARIOS}
+    TABLE_PRODUCTS: ${env:TABLE_PRODUCTOS}
+    TABLE_HISTORIAL_ESTADOS: ${env:TABLE_HISTORIAL_ESTADOS}
+    STATE_MACHINE_ARN: ${cf:burger-workflow-${sls:stage}.StateMachineArn}
+  iam:
+    role: arn:aws:iam::${env:AWS_ACCOUNT_ID}:role/LabRole
+
+
+custom:
+  pythonRequirements:
+    fileName: ../requirements.txt
+
+functions:
+  createOrder:
+    handler: create.create_order
+    events:
+      - http:
+          path: pedido
+          method: post
+          authorizer: 
+             type: TOKEN
+             # Usaremos el ARN exacto si es posible o asumiremos el nombre estandar
+             # arn:aws:lambda:REGION:ACCOUNT:function:burger-auth-dev-auth
+             # Simplificación: Usar variable de entorno o hardcode relativo para taller
+             authorizerId: !ImportValue burger-auth-${sls:stage}-AuthorizerId 
+          cors: true
+
+# Ajuste: Para authorizer cross-stack lo mas facil es ARN.
+# En el provider definiremos el authorizer global si es posible o en cada funcion.
+# Vamos a exportar el ARN de la funcion Auth en auth-service y usarlo aqui.

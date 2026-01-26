@@ -1,0 +1,38 @@
+service: burger-auth
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: python3.13
+  region: us-east-1
+  stage: ${opt:stage, 'dev'}
+  memorySize: 256
+  timeout: 20
+  environment:
+    TABLE_USERS: ${env:TABLE_USUARIOS}
+    TOKENS_TABLE_USERS: ${env:TABLE_TOKENS_USUARIOS}
+  iam:
+    role: arn:aws:iam::${env:AWS_ACCOUNT_ID}:role/LabRole
+
+custom:
+  pythonRequirements:
+    fileName: ../requirements.txt
+
+functions:
+  auth:
+    handler: authorize.authorize
+  register:
+    handler: register.register_user
+    events:
+      - http:
+          path: register
+          method: post
+          cors: true
+  login:
+    handler: login.login
+    events:
+      - http:
+          path: login
+          method: post
+          cors: true

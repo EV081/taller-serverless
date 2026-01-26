@@ -1,0 +1,14 @@
+services:
+  workflow:
+    path: workflow-service
+  auth:
+    path: auth-service
+  order:
+    path: order-service
+    dependsOn: [workflow, auth]
+  kitchen:
+    path: kitchen-service
+    dependsOn: [workflow, auth]
+  delivery:
+    path: delivery-service
+    dependsOn: [workflow, auth]

@@ -1,0 +1,54 @@
+service: burger-delivery
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: python3.13
+  region: us-east-1
+  stage: ${opt:stage, 'dev'}
+  memorySize: 256
+  timeout: 20
+  environment:
+    TABLE_ORDERS: ${env:TABLE_PEDIDOS}
+    TABLE_HISTORIAL_ESTADOS: ${env:TABLE_HISTORIAL_ESTADOS}
+  iam:
+    role: arn:aws:iam::${env:AWS_ACCOUNT_ID}:role/LabRole
+
+
+custom:
+  pythonRequirements:
+    fileName: ../requirements.txt
+
+functions:
+  listDeliveryReady:
+    handler: list.list_ready
+    events:
+      - http:
+          path: delivery/disponibles
+          method: get
+          cors: true
+
+  listDeliveryMyOrders:
+    handler: list.list_my_orders
+    events:
+      - http:
+          path: delivery/mis-pedidos
+          method: get
+          cors: true
+
+  takeOrder:
+    handler: take.take
+    events:
+      - http:
+          path: delivery/tomar
+          method: post
+          cors: true
+
+  completeDelivery:
+    handler: complete.complete
+    events:
+      - http:
+          path: delivery/entregar
+          method: post
+          cors: true
