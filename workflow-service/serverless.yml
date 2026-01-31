@@ -28,7 +28,6 @@ custom:
 # Las funciones Lambda ahora están en sus servicios correspondientes:
 # - validateStock: en kitchen-service
 # - registerToken: en auth-service
-# El Step Function se crea MANUALMENTE en AWS Console usando step-function.json
 
 resources:
   Resources:
