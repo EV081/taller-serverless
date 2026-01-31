@@ -1,0 +1,167 @@
+{
+    "info": {
+        "_postman_id": "burger-cloud-taller",
+        "name": "Burger Cloud - Taller Serverless",
+        "description": "Colección para probar el flujo de Burger Cloud con Step Functions",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "1. Crear Pedido (Trigger Workflow)",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json",
+                        "type": "text"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"source\": \"burger.pedidos\",\n    \"detailType\": \"CrearPedido\",\n    \"detail\": {\n        \"order_id\": \"pedido-{{$randomInt}}\",\n        \"local_id\": \"local_1\",\n        \"user_id\": \"user_test\",\n        \"products\": [\n            {\"id\": \"hamburguesa_clasica\", \"quantity\": 2}\n        ]\n    }\n}"
+                },
+                "url": {
+                    "raw": "{{api_url}}/eventos/trigger",
+                    "host": [
+                        "{{api_url}}"
+                    ],
+                    "path": [
+                        "eventos",
+                        "trigger"
+                    ]
+                },
+                "description": "Inicia la ejecución del Step Function simulando un evento de 'CrearPedido'"
+            },
+            "response": []
+        },
+        {
+            "name": "2.1 Cocina: Aceptar Pedido",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json",
+                        "type": "text"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"taskToken\": \"{{task_token}}\",\n    \"decision\": \"ACEPTAR\",\n    \"empleado_correo\": \"cocina@burger.com\"\n}"
+                },
+                "url": {
+                    "raw": "{{api_url}}/callback/responder",
+                    "host": [
+                        "{{api_url}}"
+                    ],
+                    "path": [
+                        "callback",
+                        "responder"
+                    ]
+                },
+                "description": "Envía la confirmación de la cocina para pasar al estado 'EnPreparacion'"
+            },
+            "response": []
+        },
+        {
+            "name": "2.2 Cocina: Terminar Preparación",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json",
+                        "type": "text"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"taskToken\": \"{{task_token}}\",\n    \"decision\": \"ACEPTAR\",\n    \"detalles\": \"Hamburguesas listas\"\n}"
+                },
+                "url": {
+                    "raw": "{{api_url}}/callback/responder",
+                    "host": [
+                        "{{api_url}}"
+                    ],
+                    "path": [
+                        "callback",
+                        "responder"
+                    ]
+                },
+                "description": "Se usa el mismo endpoint. Simula que la cocina terminó de preparar."
+            },
+            "response": []
+        },
+        {
+            "name": "3.1 Delivery: Aceptar Entrega",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json",
+                        "type": "text"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"taskToken\": \"{{task_token}}\",\n    \"decision\": \"ACEPTAR\",\n    \"repartidor_correo\": \"delivery@burger.com\"\n}"
+                },
+                "url": {
+                    "raw": "{{api_url}}/callback/responder",
+                    "host": [
+                        "{{api_url}}"
+                    ],
+                    "path": [
+                        "callback",
+                        "responder"
+                    ]
+                },
+                "description": "Repartidor acepta el pedido. Pasa a estado 'EnCamino'."
+            },
+            "response": []
+        },
+        {
+            "name": "3.2 Delivery: Confirmar Entrega",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json",
+                        "type": "text"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"taskToken\": \"{{task_token}}\",\n    \"decision\": \"ACEPTAR\",\n    \"confirmacion\": \"Entregado al cliente\"\n}"
+                },
+                "url": {
+                    "raw": "{{api_url}}/callback/responder",
+                    "host": [
+                        "{{api_url}}"
+                    ],
+                    "path": [
+                        "callback",
+                        "responder"
+                    ]
+                },
+                "description": "Repartidor confirma entrega final. Step Function termina exitosamente."
+            },
+            "response": []
+        }
+    ],
+    "variable": [
+        {
+            "key": "api_url",
+            "value": "https://REEMPLAZAR_CON_TU_API_URL.execute-api.us-east-1.amazonaws.com",
+            "type": "string"
+        },
+        {
+            "key": "task_token",
+            "value": "PEGAR_TASK_TOKEN_AQUI",
+            "type": "string"
+        }
+    ]
+}
