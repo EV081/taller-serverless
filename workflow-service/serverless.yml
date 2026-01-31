@@ -25,167 +25,59 @@ custom:
   pythonRequirements:
     fileName: ../requirements.txt
 
-# Las funciones Lambda ahora están en sus servicios correspondientes:
-# - validateStock: en kitchen-service
-# - registerToken: en auth-service
+functions:
+  # Iniciar Step Function cuando se crea un pedido nuevo
+  startExecution:
+    handler: handlers/start_execution.handler
+    environment:
+      STATE_MACHINE_ARN: arn:aws:states:us-east-1:${env:AWS_ACCOUNT_ID}:stateMachine:BurgerFlow-dev
+    events:
+      - eventBridge:
+          pattern:
+            source:
+              - "burger.pedidos"
+            detail-type:
+              - "CrearPedido"
 
-resources:
-  Resources:
-    # Tabla de Usuarios (Clientes, Gerentes)
-    UsersTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: ${self:provider.environment.TABLE_USERS}
-        AttributeDefinitions:
-          - AttributeName: correo
-            AttributeType: S
-        KeySchema:
-          - AttributeName: correo
-            KeyType: HASH
-        BillingMode: PAY_PER_REQUEST
+  # Cambiar estado del pedido y registrar en historial
+  cambiarEstado:
+    handler: handlers/cambiar_estado.handler
+    events:
+      - eventBridge:
+          pattern:
+            source:
+              - "burger.cocina"
+              - "burger.delivery"
+              - "burger.cliente"
+            detail-type:
+              - "EnPreparacion"
+              - "CocinaCompleta"
+              - "Empaquetado"
+              - "EnCamino"
+              - "Entregado"
+              - "ConfirmarPedido"
 
-    # Tabla de Empleados (Cocineros, Repartidores)
-    EmployeesTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: ${self:provider.environment.TABLE_EMPLOYEES}
-        AttributeDefinitions:
-          - AttributeName: local_id
-            AttributeType: S
-          - AttributeName: correo
-            AttributeType: S
-        KeySchema:
-          - AttributeName: local_id
-            KeyType: HASH
-          - AttributeName: correo
-            KeyType: RANGE
-        BillingMode: PAY_PER_REQUEST
+  # Endpoint HTTP para responder callbacks del Step Function
+  responderCallback:
+    handler: handlers/responder_callback.handler
+    environment:
+      STATE_MACHINE_ARN: arn:aws:states:us-east-1:${env:AWS_ACCOUNT_ID}:stateMachine:BurgerFlow-dev
+    events:
+      - httpApi:
+          path: /callback/responder
+          method: POST
 
-    # Tabla de Locales
-    LocalsTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: ${self:provider.environment.TABLE_LOCALS}
-        AttributeDefinitions:
-          - AttributeName: local_id
-            AttributeType: S
-        KeySchema:
-          - AttributeName: local_id
-            KeyType: HASH
-        BillingMode: PAY_PER_REQUEST
+  # Endpoint HTTP para disparar eventos de testing
+  triggerEvent:
+    handler: handlers/trigger_event.handler
+    events:
+      - httpApi:
+          path: /eventos/trigger
+          method: POST
 
-    # Tabla de Pedidos con GSI para consultar por usuario
-    OrdersTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: ${self:provider.environment.TABLE_ORDERS}
-        AttributeDefinitions:
-          - AttributeName: local_id
-            AttributeType: S
-          - AttributeName: pedido_id
-            AttributeType: S
-          - AttributeName: correo
-            AttributeType: S
-          - AttributeName: created_at
-            AttributeType: S
-        KeySchema:
-          - AttributeName: local_id
-            KeyType: HASH
-          - AttributeName: pedido_id
-            KeyType: RANGE
-        GlobalSecondaryIndexes:
-          - IndexName: by_usuario
-            KeySchema:
-              - AttributeName: correo
-                KeyType: HASH
-              - AttributeName: created_at
-                KeyType: RANGE
-            Projection:
-              ProjectionType: ALL
-        BillingMode: PAY_PER_REQUEST
-
-    # Tabla de Productos
-    ProductsTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: ${self:provider.environment.TABLE_PRODUCTS}
-        AttributeDefinitions:
-          - AttributeName: local_id
-            AttributeType: S
-          - AttributeName: producto_id
-            AttributeType: S
-        KeySchema:
-          - AttributeName: local_id
-            KeyType: HASH
-          - AttributeName: producto_id
-            KeyType: RANGE
-        BillingMode: PAY_PER_REQUEST
-
-    # Tabla de Historial de Estados
-    OrderHistoryTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: ${self:provider.environment.TABLE_ORDER_HISTORY}
-        AttributeDefinitions:
-          - AttributeName: pedido_id
-            AttributeType: S
-          - AttributeName: estado_id
-            AttributeType: S
-        KeySchema:
-          - AttributeName: pedido_id
-            KeyType: HASH
-          - AttributeName: estado_id
-            KeyType: RANGE
-        BillingMode: PAY_PER_REQUEST
-
-    # Tabla de Tokens de Usuarios (para autenticación)
-    TokensTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: ${self:provider.environment.TABLE_TOKENS}
-        AttributeDefinitions:
-          - AttributeName: token
-            AttributeType: S
-        KeySchema:
-          - AttributeName: token
-            KeyType: HASH
-        TimeToLiveSpecification:
-          AttributeName: ttl
-          Enabled: true
-        BillingMode: PAY_PER_REQUEST
-  
-  Outputs:
-    UsersTableArn:
-      Value: !GetAtt UsersTable.Arn
-      Export:
-        Name: UsersTableArn-${sls:stage}
-    
-    EmployeesTableArn:
-      Value: !GetAtt EmployeesTable.Arn
-      Export:
-        Name: EmployeesTableArn-${sls:stage}
-    
-    LocalsTableArn:
-      Value: !GetAtt LocalsTable.Arn
-      Export:
-        Name: LocalsTableArn-${sls:stage}
-    
-    OrdersTableArn:
-      Value: !GetAtt OrdersTable.Arn
-      Export:
-        Name: OrdersTableArn-${sls:stage}
-    
-    ProductsTableArn:
-      Value: !GetAtt ProductsTable.Arn
-      Export:
-        Name: ProductsTableArn-${sls:stage}
-    
-    OrderHistoryTableArn:
-      Value: !GetAtt OrderHistoryTable.Arn
-      Export:
-        Name: OrderHistoryTableArn-${sls:stage}
-    
-    TokensTableArn:
-      Value: !GetAtt TokensTable.Arn
-      Export:
-        Name: TokensTableArn-${sls:stage}
+# NOTA: Este servicio NO crea tablas DynamoDB.
+# Las tablas son creadas por data-setup/DataPoblator.py
+# Este servicio solo mantiene las referencias a las tablas en environment variables
+#
+# El Step Function (BurgerFlow-dev) se crea MANUALMENTE en AWS Console
+# usando el archivo step-function.json
