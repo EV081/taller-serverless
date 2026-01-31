@@ -2,13 +2,13 @@
   {
     "local_id": "BURGER-LOCAL-001",
     "direccion": "Av. Javier Prado 2050, San Isidro, Lima",
-    "telefono": "+51 952428890",
+    "telefono": "+51 973017119",
     "hora_apertura": "10:00",
     "hora_finalizacion": "23:00",
     "gerente": {
-      "nombre": "Luis Ortiz",
-      "correo": "luis.ortiz@outlook.com",
-      "contrasena": "ger_4601584d"
+      "nombre": "Isabel Ramírez",
+      "correo": "isabel.ramirez@gmail.com",
+      "contrasena": "ger_a19afa5b"
     }
   }
 ]

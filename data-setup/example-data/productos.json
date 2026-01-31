@@ -1,7 +1,7 @@
 [
   {
     "local_id": "BURGER-LOCAL-001",
-    "producto_id": "c50096ca-09ab-4516-b4dd-f7cc1ca8c566",
+    "producto_id": "17ffc760-e9cc-4597-912b-205c5dace36b",
     "nombre": "Hamburguesa Clásica",
     "precio": 15.0,
     "descripcion": "Carne de res, lechuga, tomate, cebolla",
@@ -11,7 +11,7 @@
   },
   {
     "local_id": "BURGER-LOCAL-001",
-    "producto_id": "3dbe81f5-1e89-4bd9-a323-f4a0fb125fff",
+    "producto_id": "c9070748-1ca9-43fc-bf20-22b538fc435d",
     "nombre": "Cheeseburger",
     "precio": 18.0,
     "descripcion": "Hamburguesa clásica con queso cheddar",
@@ -21,7 +21,7 @@
   },
   {
     "local_id": "BURGER-LOCAL-001",
-    "producto_id": "17017bea-ce53-4e02-9117-0ba4819e6538",
+    "producto_id": "9f93fc39-74d3-4426-8910-38f41df9736a",
     "nombre": "Hamburguesa BBQ",
     "precio": 20.0,
     "descripcion": "Carne, queso, cebolla caramelizada, salsa BBQ",
@@ -31,7 +31,7 @@
   },
   {
     "local_id": "BURGER-LOCAL-001",
-    "producto_id": "5faa7f9f-0f5a-40d9-92af-2c89c317e821",
+    "producto_id": "57a03eaf-434f-4eb3-9a2d-bb511cfeb292",
     "nombre": "Burger Deluxe",
     "precio": 25.0,
     "descripcion": "Doble carne, queso, bacon, huevo",
@@ -41,7 +41,7 @@
   },
   {
     "local_id": "BURGER-LOCAL-001",
-    "producto_id": "f9eaad19-8229-4385-b079-e58d3abf675f",
+    "producto_id": "c100b6a0-01ba-4f6c-b841-877e92dbf061",
     "nombre": "Mushroom Swiss Burger",
     "precio": 23.0,
     "descripcion": "Carne, champiñones, queso suizo",
@@ -51,7 +51,7 @@
   },
   {
     "local_id": "BURGER-LOCAL-001",
-    "producto_id": "84016a73-5eca-4ae4-abcd-790c54f2f045",
+    "producto_id": "fa555abc-a51f-4632-ad8a-b9fb387844c9",
     "nombre": "Spicy Jalapeño Burger",
     "precio": 22.0,
     "descripcion": "Carne, jalapeños, queso pepper jack",
@@ -61,7 +61,7 @@
   },
   {
     "local_id": "BURGER-LOCAL-001",
-    "producto_id": "111b4104-c76a-4a21-851e-682cb7d01571",
+    "producto_id": "19b226f8-5822-4f42-aa63-28688518f685",
     "nombre": "Coca Cola 500ml",
     "precio": 5.0,
     "descripcion": "Bebida gasificada",
@@ -71,7 +71,7 @@
   },
   {
     "local_id": "BURGER-LOCAL-001",
-    "producto_id": "e82e1bb7-7299-48b8-a73a-7efb0f85860b",
+    "producto_id": "9e874a4e-f8be-4b50-b388-203e3ea945b7",
     "nombre": "Limonada Natural",
     "precio": 6.0,
     "descripcion": "Limonada fresca",
@@ -81,7 +81,7 @@
   },
   {
     "local_id": "BURGER-LOCAL-001",
-    "producto_id": "5e05b7c1-3f82-40f0-b331-b7853d31c2a7",
+    "producto_id": "37f8a660-96a0-4457-bb67-255d98d1dcc5",
     "nombre": "Agua Mineral",
     "precio": 3.0,
     "descripcion": "Agua embotellada 500ml",
@@ -91,7 +91,7 @@
   },
   {
     "local_id": "BURGER-LOCAL-001",
-    "producto_id": "e08b81dd-0c11-49be-ae66-03f8882f98fa",
+    "producto_id": "4c7c2f8e-e2f3-4f07-8b9e-aa8112afba06",
     "nombre": "Fanta Naranja 500ml",
     "precio": 5.0,
     "descripcion": "Bebida gasificada sabor naranja",
@@ -101,7 +101,7 @@
   },
   {
     "local_id": "BURGER-LOCAL-001",
-    "producto_id": "4a49aa3f-b83c-498b-823c-9305ff108975",
+    "producto_id": "838d0580-a461-4c12-93ca-2bb07a32bdb3",
     "nombre": "Sprite 500ml",
     "precio": 5.0,
     "descripcion": "Bebida gasificada sabor lima-limón",
