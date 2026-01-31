@@ -2,7 +2,7 @@ import json
 import uuid
 import time
 import os
-from src.common import response, get_table, TABLE_ORDERS, stepfunctions
+from common import response, get_table, TABLE_ORDERS, stepfunctions
 
 TABLE_HISTORIAL_ESTADOS = os.environ.get('TABLE_HISTORIAL_ESTADOS')
 

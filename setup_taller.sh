@@ -1,68 +1,129 @@
 #!/bin/bash
+
+# Script de configuración completa para Burger Cloud (Taller Serverless)
+#
+# Este script configura toda la infraestructura necesaria para el taller:
+# - Genera datos de prueba
+# - Crea y puebla tablas DynamoDB
+# - Despliega todos los servicios serverless
+
 set -e
 
-COMMAND=$1
+echo "=========================================="
+echo "🍔 BURGER CLOUD - SETUP COMPLETO"
+echo "=========================================="
+echo ""
 
-function deploy() {
-    echo "🍔 Iniciando Setup del Taller Burger Cloud..."
+# Verificar que existe .env
+if [ ! -f .env ]; then
+    echo "❌ Error: No existe archivo .env"
+    echo "   Copia .env.example y configúralo primero"
+    exit 1
+fi
 
-    # 1. Instalar dependencias de Serverless
-    echo "📦 Instalando plugins de Serverless..."
-    if ! command -v sls &> /dev/null; then
-        echo "Serverless Framework no encontrado. Instalando..."
-        npm install -g serverless
+# Cargar variables de entorno
+export $(cat .env | grep -v '^#' | xargs)
+
+echo "📋 Configuración cargada:"
+echo "   AWS Account: $AWS_ACCOUNT_ID"
+echo "   AWS Region: $AWS_REGION"
+echo "   Org Name: $ORG_NAME"
+echo ""
+
+# Paso 1: Instalar dependencias de Python
+echo "📦 Instalando dependencias de Python..."
+pip3 install -q boto3 python-dotenv
+echo "✅ Dependencias instaladas"
+echo ""
+
+# Paso 2: Generar datos de prueba
+echo "🎲 Generando datos de prueba..."
+cd data-setup
+python3 DataGenerator.py
+if [ $? -eq 0 ]; then
+    echo "✅ Datos generados exitosamente"
+else
+    echo "❌ Error al generar datos"
+    exit 1
+fi
+cd ..
+echo ""
+
+# Paso 3: Crear tablas y poblar con datos
+echo "🗄️  Creando tablas DynamoDB y poblando datos..."
+cd data-setup
+python3 DataPoblator.py
+if [ $? -eq 0 ]; then
+    echo "✅ Tablas creadas y pobladas exitosamente"
+else
+    echo "❌ Error al crear o poblar tablas"
+    exit 1
+fi
+cd ..
+echo ""
+
+# Paso 4: Verificar que serverless está instalado
+if ! command -v serverless &> /dev/null; then
+    echo "⚠️  Serverless Framework no encontrado. Instalando..."
+    npm install -g serverless
+fi
+
+# Paso 5: Desplegar servicios
+echo "🚀 Desplegando servicios serverless..."
+echo ""
+
+# Función para desplegar un servicio
+deploy_service() {
+    local service_name=$1
+    local service_path=$2
+    
+    echo "📦 Desplegando $service_name..."
+    cd $service_path
+    serverless deploy --verbose
+    if [ $? -eq 0 ]; then
+        echo "✅ $service_name desplegado"
+    else
+        echo "❌ Error al desplegar $service_name"
+        return 1
     fi
-
-    sls plugin install -n serverless-python-requirements
-    sls plugin install -n serverless-step-functions
-
-    # 2. Desplegar con Compose
-    echo "🚀 Desplegando servicios con Serverless Compose (Stage: dev)..."
-    npx serverless deploy --verbose
-
-    # 3. Poblar Datos
-    echo "🌱 Poblando base de datos con usuarios y productos de prueba..."
-    export STAGE=dev
-    # Ejecutamos seed_data desde root
-    pip3 install boto3
-    python3 seed_data.py
-
-    echo "✅ Setup Completo!"
-    echo "---------------------------------------------------"
-    echo "Usuarios de prueba:"
-    echo " - Cliente: cliente1 / password123"
-    echo " - Cocina: cocinero1 / password123"
-    echo " - Driver: driver1 / password123"
-    echo "---------------------------------------------------"
-    echo "Obtén las URLs del output de 'sls deploy' arriba."
+    cd - > /dev/null
+    echo ""
 }
 
-function remove() {
-    echo "🗑️ Eliminando todos los recursos..."
-    if ! command -v sls &> /dev/null; then
-         echo "Serverless Framework no encontrado. Instalando..."
-         npm install -g serverless
-    fi
-    npx serverless remove --verbose
-    echo "✅ Eliminación Completa!"
-}
+# Desplegar en orden: primero los servicios que exportan Lambdas,
+# luego workflow-service que las importa
 
-function help() {
-    echo "Uso: ./setup_taller.sh [opcion]"
-    echo "Opciones:"
-    echo "  deploy  - Desplegar todos los servicios y poblar datos"
-    echo "  remove  - Eliminar todos los servicios desplegados"
-    echo "  help    - Mostrar esta ayuda"
-}
+# Desplegar kitchen-service (exporta validateStock)
+deploy_service "Kitchen Service" "kitchen-service"
 
-case "$COMMAND" in
-    deploy)
-        deploy
-        ;;
-    remove)
-        remove
-        ;;
-    *)
-        help
-        ;;
-esac
+# Desplegar auth-service (exporta registerToken)
+deploy_service "Auth Service" "auth-service"
+
+# Desplegar workflow-service (importa validateStock y registerToken, crea tablas y Step Functions)
+deploy_service "Workflow Service" "workflow-service"
+
+# Desplegar order-service
+deploy_service "Order Service" "order-service"
+
+# Desplegar delivery-service
+deploy_service "Delivery Service" "delivery-service"
+
+echo "=========================================="
+echo "✅ DESPLIEGUE COMPLETADO"
+echo "=========================================="
+echo ""
+echo "🎉 Taller configurado exitosamente!"
+echo ""
+echo "📊 Tablas creadas:"
+echo "   - $TABLE_USUARIOS"
+echo "   - $TABLE_EMPLEADOS"
+echo "   - $TABLE_LOCALES"
+echo "   - $TABLE_PRODUCTOS"
+echo "   - $TABLE_PEDIDOS"
+echo "   - $TABLE_HISTORIAL_ESTADOS"
+echo "   - $TABLE_TOKENS_USUARIOS"
+echo ""
+echo "🔗 API Endpoints desplegados. Revisa los outputs de Serverless arriba."
+echo ""
+echo "📖 Consulta GUIA_TALLER.md para instrucciones de uso."
+echo ""

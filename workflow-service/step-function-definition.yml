@@ -1,0 +1,174 @@
+Comment: "Flujo simplificado de pedido de hamburguesas - Sin despachador"
+StartAt: ValidarStock
+States:
+  ValidarStock:
+    Type: Task
+    Resource:
+      Fn::ImportValue: ValidateStockLambdaArn-${sls:stage}
+    Catch:
+      - ErrorEquals:
+          - StockError
+        Next: PedidoFalloStock
+    Next: EsperarConfirmacionCocina
+    ResultPath: $.stockValidation
+  
+  PedidoFalloStock:
+    Type: Fail
+    Cause: "No hay stock suficiente para completar el pedido"
+    Error: StockError
+  
+  EsperarConfirmacionCocina:
+    Type: Task
+    Resource: arn:aws:states:::lambda:invoke.waitForTaskToken
+    Parameters:
+      FunctionName:
+        Fn::ImportValue: RegisterTokenLambdaArn-${sls:stage}
+      Payload:
+        taskToken.$: "$$.Task.Token"
+        order_id.$: "$.order_id"
+        local_id.$: "$.local_id"
+        stage: PENDIENTE_COCINA
+    TimeoutSeconds: 900
+    Catch:
+      - ErrorEquals:
+          - States.Timeout
+        Next: PedidoExpirado
+    Next: DecisionCocina
+    ResultPath: $.cocinaDecision
+  
+  DecisionCocina:
+    Type: Choice
+    Choices:
+      - Variable: "$.cocinaDecision.decision"
+        StringEquals: RECHAZADO
+        Next: ReintentarCocina
+      - Variable: "$.cocinaDecision.decision"
+        StringEquals: ACEPTAR
+        Next: EnPreparacion
+    Default: PedidoRechazadoCocina
+  
+  ReintentarCocina:
+    Type: Task
+    Resource:
+      Fn::ImportValue: ValidateStockLambdaArn-${sls:stage}
+    ResultPath: $.retryInfo
+    Next: EvaluarReintentoCocina
+  
+  EvaluarReintentoCocina:
+    Type: Choice
+    Choices:
+      - Variable: "$.retry_count"
+        NumericLessThanEquals: 3
+        Next: EsperarConfirmacionCocina
+    Default: CocinaFallida
+  
+  CocinaFallida:
+    Type: Fail
+    Cause: "La cocina rechazó el pedido más de 3 veces"
+    Error: MaxRetriesReached
+  
+  PedidoRechazadoCocina:
+    Type: Fail
+    Cause: "Cocina rechazó el pedido"
+    Error: KitchenReject
+  
+  EnPreparacion:
+    Type: Task
+    Resource: arn:aws:states:::lambda:invoke.waitForTaskToken
+    Parameters:
+      FunctionName:
+        Fn::ImportValue: RegisterTokenLambdaArn-${sls:stage}
+      Payload:
+        taskToken.$: "$$.Task.Token"
+        order_id.$: "$.order_id"
+        local_id.$: "$.local_id"
+        stage: COCINANDO
+    TimeoutSeconds: 900
+    Catch:
+      - ErrorEquals:
+          - States.Timeout
+        Next: PedidoExpirado
+    Next: ListoParaEntrega
+    ResultPath: $.preparacionInfo
+  
+  ListoParaEntrega:
+    Type: Pass
+    Result: "Pedido listo para entrega"
+    ResultPath: $.statusInfo
+    Next: EsperarDelivery
+  
+  EsperarDelivery:
+    Type: Task
+    Resource: arn:aws:states:::lambda:invoke.waitForTaskToken
+    Parameters:
+      FunctionName:
+        Fn::ImportValue: RegisterTokenLambdaArn-${sls:stage}
+      Payload:
+        taskToken.$: "$$.Task.Token"
+        order_id.$: "$.order_id"
+        local_id.$: "$.local_id"
+        stage: LISTO_PARA_RECOJO
+    TimeoutSeconds: 1800
+    Catch:
+      - ErrorEquals:
+          - States.Timeout
+        Next: PedidoExpirado
+    Next: DecisionDelivery
+    ResultPath: $.deliveryDecision
+  
+  DecisionDelivery:
+    Type: Choice
+    Choices:
+      - Variable: "$.deliveryDecision.decision"
+        StringEquals: RECHAZADO
+        Next: ReintentarDelivery
+      - Variable: "$.deliveryDecision.decision"
+        StringEquals: ACEPTAR
+        Next: EnCamino
+    Default: DeliveryFallido
+  
+  ReintentarDelivery:
+    Type: Pass
+    Result: "Buscando otro repartidor"
+    ResultPath: $.retryInfo
+    Next: EvaluarReintentoDelivery
+  
+  EvaluarReintentoDelivery:
+    Type: Choice
+    Choices:
+      - Variable: "$.delivery_retry_count"
+        NumericLessThanEquals: 3
+        Next: EsperarDelivery
+    Default: DeliveryFallido
+  
+  DeliveryFallido:
+    Type: Fail
+    Cause: "No se encontró repartidor disponible después de 3 intentos"
+    Error: MaxRetriesReached
+  
+  EnCamino:
+    Type: Task
+    Resource: arn:aws:states:::lambda:invoke.waitForTaskToken
+    Parameters:
+      FunctionName:
+        Fn::ImportValue: RegisterTokenLambdaArn-${sls:stage}
+      Payload:
+        taskToken.$: "$$.Task.Token"
+        order_id.$: "$.order_id"
+        local_id.$: "$.local_id"
+        stage: EN_CAMINO
+    TimeoutSeconds: 1800
+    Catch:
+      - ErrorEquals:
+          -States.Timeout
+        Next: PedidoExpirado
+    Next: PedidoEntregado
+    ResultPath: $.entregaInfo
+  
+  PedidoEntregado:
+    Type: Succeed
+  
+  PedidoExpirado:
+    Type: Fail
+    Cause: "El pedido expiró por timeout"
+    Error: Timeout

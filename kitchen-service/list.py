@@ -1,5 +1,5 @@
 from boto3.dynamodb.conditions import Attr
-from src.common import response, get_table, TABLE_ORDERS
+from common import response, get_table, TABLE_ORDERS
 
 def _scan_by_status(status, limit=20, start_key=None):
     table = get_table(TABLE_ORDERS)
