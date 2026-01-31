@@ -4,7 +4,7 @@
     "States": {
         "ValidarStock": {
             "Type": "Task",
-            "Resource": "${ValidateStockLambdaArn}",
+            "Resource": "arn:aws:lambda:us-east-1:287807590791:function:burger-kitchen-dev-validateStock",
             "Catch": [
                 {
                     "ErrorEquals": [
@@ -25,7 +25,7 @@
             "Type": "Task",
             "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
             "Parameters": {
-                "FunctionName": "${RegisterTokenLambdaArn}",
+                "FunctionName": "arn:aws:lambda:us-east-1:287807590791:function:burger-auth-dev-registerToken",
                 "Payload": {
                     "taskToken.$": "$$.Task.Token",
                     "order_id.$": "$.order_id",
@@ -63,7 +63,7 @@
         },
         "ReintentarCocina": {
             "Type": "Task",
-            "Resource": "${ValidateStockLambdaArn}",
+            "Resource": "arn:aws:lambda:us-east-1:287807590791:function:burger-kitchen-dev-validateStock",
             "ResultPath": "$.retryInfo",
             "Next": "EvaluarReintentoCocina"
         },
@@ -92,7 +92,7 @@
             "Type": "Task",
             "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
             "Parameters": {
-                "FunctionName": "${RegisterTokenLambdaArn}",
+                "FunctionName": "arn:aws:lambda:us-east-1:287807590791:function:burger-auth-dev-registerToken",
                 "Payload": {
                     "taskToken.$": "$$.Task.Token",
                     "order_id.$": "$.order_id",
@@ -122,7 +122,7 @@
             "Type": "Task",
             "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
             "Parameters": {
-                "FunctionName": "${RegisterTokenLambdaArn}",
+                "FunctionName": "arn:aws:lambda:us-east-1:287807590791:function:burger-auth-dev-registerToken",
                 "Payload": {
                     "taskToken.$": "$$.Task.Token",
                     "order_id.$": "$.order_id",
@@ -184,7 +184,7 @@
             "Type": "Task",
             "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
             "Parameters": {
-                "FunctionName": "${RegisterTokenLambdaArn}",
+                "FunctionName": "arn:aws:lambda:us-east-1:287807590791:function:burger-auth-dev-registerToken",
                 "Payload": {
                     "taskToken.$": "$$.Task.Token",
                     "order_id.$": "$.order_id",

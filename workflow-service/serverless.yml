@@ -29,13 +29,6 @@ custom:
 # - validateStock: en kitchen-service
 # - registerToken: en auth-service
 
-stepFunctions:
-  validate: true
-  stateMachines:
-    BurgerFlow:
-      name: BurgerFlow-${sls:stage}
-      definition: ${file(step-function-definition.yml)}
-
 resources:
   Resources:
     # Tabla de Usuarios (Clientes, Gerentes)
@@ -196,9 +189,3 @@ resources:
       Value: !GetAtt TokensTable.Arn
       Export:
         Name: TokensTableArn-${sls:stage}
-    
-    BurgerFlowStateMachineArn:
-      Value: !GetAtt BurgerFlowStepFunctionsStateMachine.Arn
-      Export:
-        Name: BurgerFlowStateMachineArn-${sls:stage}
-
