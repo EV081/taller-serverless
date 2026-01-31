@@ -22,6 +22,7 @@ custom:
 functions:
   auth:
     handler: authorize.authorize
+  
   register:
     handler: register.register_user
     events:
@@ -29,6 +30,7 @@ functions:
           path: register
           method: post
           cors: true
+  
   login:
     handler: login.login
     events:
@@ -36,3 +38,16 @@ functions:
           path: login
           method: post
           cors: true
+  
+  registerToken:
+    handler: register_token.register_token
+    description: Registra task tokens para Step Functions
+
+resources:
+  Outputs:
+    RegisterTokenLambdaArn:
+      Value: !GetAtt RegisterTokenLambdaFunction.Arn
+      Export:
+        Name: RegisterTokenLambdaArn-${sls:stage}
+
+

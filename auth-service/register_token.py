@@ -1,5 +1,5 @@
 import time
-from src.common import get_table, TABLE_ORDERS
+from common import get_table, TABLE_ORDERS
 
 def register_token(event, context):
     try:
@@ -22,3 +22,5 @@ def register_token(event, context):
     except Exception as e:
         print(f"Error registering token: {e}")
         raise e
+
+

@@ -1,0 +1,92 @@
+[
+  {
+    "correo": "luis.ortiz@outlook.com",
+    "nombre": "Luis Ortiz",
+    "contrasena": "ger_4601584d",
+    "role": "Gerente"
+  },
+  {
+    "correo": "andres.lopez@gmail.com",
+    "nombre": "Andrés López",
+    "contrasena": "cli_39239ac033",
+    "role": "Cliente"
+  },
+  {
+    "correo": "miguel.gonzalez@outlook.com",
+    "nombre": "Miguel González",
+    "contrasena": "cli_61c29043ed",
+    "role": "Cliente"
+  },
+  {
+    "correo": "diego.torres@outlook.com",
+    "nombre": "Diego Torres",
+    "contrasena": "cli_869a2f7dd9",
+    "role": "Cliente"
+  },
+  {
+    "correo": "andres.garcia@hotmail.com",
+    "nombre": "Andrés García",
+    "contrasena": "cli_d8e883a72d",
+    "role": "Cliente"
+  },
+  {
+    "correo": "maria.sanchez@outlook.com",
+    "nombre": "María Sánchez",
+    "contrasena": "cli_127478ee85",
+    "role": "Cliente"
+  },
+  {
+    "correo": "carmen.ramirez@hotmail.com",
+    "nombre": "Carmen Ramírez",
+    "contrasena": "cli_22fef29710",
+    "role": "Cliente"
+  },
+  {
+    "correo": "maria.fernandez@outlook.com",
+    "nombre": "María Fernández",
+    "contrasena": "cli_704c4834db",
+    "role": "Cliente"
+  },
+  {
+    "correo": "carlos.castro@outlook.com",
+    "nombre": "Carlos Castro",
+    "contrasena": "cli_2e0c0f8c8c",
+    "role": "Cliente"
+  },
+  {
+    "correo": "jose.lopez@outlook.com",
+    "nombre": "José López",
+    "contrasena": "cli_81717b35f4",
+    "role": "Cliente"
+  },
+  {
+    "correo": "miguel.ortiz@gmail.com",
+    "nombre": "Miguel Ortiz",
+    "contrasena": "cli_f2a9ee6b45",
+    "role": "Cliente"
+  },
+  {
+    "correo": "diego.perez@outlook.com",
+    "nombre": "Diego Pérez",
+    "contrasena": "cli_64800e13b1",
+    "role": "Cliente"
+  },
+  {
+    "correo": "ana.torres@gmail.com",
+    "nombre": "Ana Torres",
+    "contrasena": "cli_1c2b5c18e3",
+    "role": "Cliente"
+  },
+  {
+    "correo": "laura.morales@gmail.com",
+    "nombre": "Laura Morales",
+    "contrasena": "cli_61d940553c",
+    "role": "Cliente"
+  },
+  {
+    "correo": "maria.lopez@outlook.com",
+    "nombre": "María López",
+    "contrasena": "cli_86bac7b5ab",
+    "role": "Cliente"
+  }
+]

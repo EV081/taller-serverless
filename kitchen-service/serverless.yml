@@ -12,6 +12,7 @@ provider:
   environment:
     TABLE_ORDERS: ${env:TABLE_PEDIDOS}
     TABLE_HISTORIAL_ESTADOS: ${env:TABLE_HISTORIAL_ESTADOS}
+    TABLE_PRODUCTS: ${env:TABLE_PRODUCTOS}
   iam:
     role: arn:aws:iam::${env:AWS_ACCOUNT_ID}:role/LabRole
 
@@ -21,6 +22,10 @@ custom:
     fileName: ../requirements.txt
 
 functions:
+  validateStock:
+    handler: validate_stock.validate_stock
+    description: Valida disponibilidad de stock de productos
+  
   listKitchenPending:
     handler: list.list_pending
     events:
@@ -52,3 +57,12 @@ functions:
           path: cocina/terminar
           method: post
           cors: true
+
+resources:
+  Outputs:
+    ValidateStockLambdaArn:
+      Value: !GetAtt ValidateStockLambdaFunction.Arn
+      Export:
+        Name: ValidateStockLambdaArn-${sls:stage}
+
+

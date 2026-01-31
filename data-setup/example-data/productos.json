@@ -1,0 +1,112 @@
+[
+  {
+    "local_id": "BURGER-LOCAL-001",
+    "producto_id": "c50096ca-09ab-4516-b4dd-f7cc1ca8c566",
+    "nombre": "Hamburguesa Clásica",
+    "precio": 15.0,
+    "descripcion": "Carne de res, lechuga, tomate, cebolla",
+    "categoria": "Hamburguesas",
+    "stock": 50,
+    "imagen_url": "https://burgercloud.s3.amazonaws.com/productos/hamburguesa-clasica.jpg"
+  },
+  {
+    "local_id": "BURGER-LOCAL-001",
+    "producto_id": "3dbe81f5-1e89-4bd9-a323-f4a0fb125fff",
+    "nombre": "Cheeseburger",
+    "precio": 18.0,
+    "descripcion": "Hamburguesa clásica con queso cheddar",
+    "categoria": "Hamburguesas",
+    "stock": 45,
+    "imagen_url": "https://burgercloud.s3.amazonaws.com/productos/cheeseburger.jpg"
+  },
+  {
+    "local_id": "BURGER-LOCAL-001",
+    "producto_id": "17017bea-ce53-4e02-9117-0ba4819e6538",
+    "nombre": "Hamburguesa BBQ",
+    "precio": 20.0,
+    "descripcion": "Carne, queso, cebolla caramelizada, salsa BBQ",
+    "categoria": "Hamburguesas",
+    "stock": 40,
+    "imagen_url": "https://burgercloud.s3.amazonaws.com/productos/hamburguesa-bbq.jpg"
+  },
+  {
+    "local_id": "BURGER-LOCAL-001",
+    "producto_id": "5faa7f9f-0f5a-40d9-92af-2c89c317e821",
+    "nombre": "Burger Deluxe",
+    "precio": 25.0,
+    "descripcion": "Doble carne, queso, bacon, huevo",
+    "categoria": "Hamburguesas",
+    "stock": 30,
+    "imagen_url": "https://burgercloud.s3.amazonaws.com/productos/burger-deluxe.jpg"
+  },
+  {
+    "local_id": "BURGER-LOCAL-001",
+    "producto_id": "f9eaad19-8229-4385-b079-e58d3abf675f",
+    "nombre": "Mushroom Swiss Burger",
+    "precio": 23.0,
+    "descripcion": "Carne, champiñones, queso suizo",
+    "categoria": "Hamburguesas",
+    "stock": 35,
+    "imagen_url": "https://burgercloud.s3.amazonaws.com/productos/mushroom-swiss-burger.jpg"
+  },
+  {
+    "local_id": "BURGER-LOCAL-001",
+    "producto_id": "84016a73-5eca-4ae4-abcd-790c54f2f045",
+    "nombre": "Spicy Jalapeño Burger",
+    "precio": 22.0,
+    "descripcion": "Carne, jalapeños, queso pepper jack",
+    "categoria": "Hamburguesas",
+    "stock": 38,
+    "imagen_url": "https://burgercloud.s3.amazonaws.com/productos/spicy-jalapeno-burger.jpg"
+  },
+  {
+    "local_id": "BURGER-LOCAL-001",
+    "producto_id": "111b4104-c76a-4a21-851e-682cb7d01571",
+    "nombre": "Coca Cola 500ml",
+    "precio": 5.0,
+    "descripcion": "Bebida gasificada",
+    "categoria": "Bebidas",
+    "stock": 100,
+    "imagen_url": "https://burgercloud.s3.amazonaws.com/productos/coca-cola-500ml.jpg"
+  },
+  {
+    "local_id": "BURGER-LOCAL-001",
+    "producto_id": "e82e1bb7-7299-48b8-a73a-7efb0f85860b",
+    "nombre": "Limonada Natural",
+    "precio": 6.0,
+    "descripcion": "Limonada fresca",
+    "categoria": "Bebidas",
+    "stock": 80,
+    "imagen_url": "https://burgercloud.s3.amazonaws.com/productos/limonada-natural.jpg"
+  },
+  {
+    "local_id": "BURGER-LOCAL-001",
+    "producto_id": "5e05b7c1-3f82-40f0-b331-b7853d31c2a7",
+    "nombre": "Agua Mineral",
+    "precio": 3.0,
+    "descripcion": "Agua embotellada 500ml",
+    "categoria": "Bebidas",
+    "stock": 120,
+    "imagen_url": "https://burgercloud.s3.amazonaws.com/productos/agua-mineral.jpg"
+  },
+  {
+    "local_id": "BURGER-LOCAL-001",
+    "producto_id": "e08b81dd-0c11-49be-ae66-03f8882f98fa",
+    "nombre": "Fanta Naranja 500ml",
+    "precio": 5.0,
+    "descripcion": "Bebida gasificada sabor naranja",
+    "categoria": "Bebidas",
+    "stock": 90,
+    "imagen_url": "https://burgercloud.s3.amazonaws.com/productos/fanta-naranja-500ml.jpg"
+  },
+  {
+    "local_id": "BURGER-LOCAL-001",
+    "producto_id": "4a49aa3f-b83c-498b-823c-9305ff108975",
+    "nombre": "Sprite 500ml",
+    "precio": 5.0,
+    "descripcion": "Bebida gasificada sabor lima-limón",
+    "categoria": "Bebidas",
+    "stock": 95,
+    "imagen_url": "https://burgercloud.s3.amazonaws.com/productos/sprite-500ml.jpg"
+  }
+]

@@ -11,8 +11,12 @@ provider:
   timeout: 20
   environment:
     TABLE_USERS: ${env:TABLE_USUARIOS}
+    TABLE_EMPLOYEES: ${env:TABLE_EMPLEADOS}
+    TABLE_LOCALS: ${env:TABLE_LOCALES}
     TABLE_ORDERS: ${env:TABLE_PEDIDOS}
     TABLE_PRODUCTS: ${env:TABLE_PRODUCTOS}
+    TABLE_ORDER_HISTORY: ${env:TABLE_HISTORIAL_ESTADOS}
+    TABLE_TOKENS: ${env:TABLE_TOKENS_USUARIOS}
   iam:
     role: arn:aws:iam::${env:AWS_ACCOUNT_ID}:role/LabRole
 
@@ -21,71 +25,180 @@ custom:
   pythonRequirements:
     fileName: ../requirements.txt
 
-functions:
-  validateStock:
-    handler: validate_stock.validate_stock
-  
-  registerToken:
-    handler: register_token.register_token
+# Las funciones Lambda ahora están en sus servicios correspondientes:
+# - validateStock: en kitchen-service
+# - registerToken: en auth-service
 
 stepFunctions:
+  validate: true
   stateMachines:
     BurgerFlow:
       name: BurgerFlow-${sls:stage}
-      file: step-function.json
+      definition: ${file(step-function-definition.yml)}
 
 resources:
   Resources:
+    # Tabla de Usuarios (Clientes, Gerentes)
     UsersTable:
       Type: AWS::DynamoDB::Table
       Properties:
         TableName: ${self:provider.environment.TABLE_USERS}
         AttributeDefinitions:
-          - AttributeName: username
+          - AttributeName: correo
             AttributeType: S
         KeySchema:
-          - AttributeName: username
+          - AttributeName: correo
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
 
+    # Tabla de Empleados (Cocineros, Repartidores)
+    EmployeesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.TABLE_EMPLOYEES}
+        AttributeDefinitions:
+          - AttributeName: local_id
+            AttributeType: S
+          - AttributeName: correo
+            AttributeType: S
+        KeySchema:
+          - AttributeName: local_id
+            KeyType: HASH
+          - AttributeName: correo
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+
+    # Tabla de Locales
+    LocalsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.TABLE_LOCALS}
+        AttributeDefinitions:
+          - AttributeName: local_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: local_id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+    # Tabla de Pedidos con GSI para consultar por usuario
     OrdersTable:
       Type: AWS::DynamoDB::Table
       Properties:
         TableName: ${self:provider.environment.TABLE_ORDERS}
         AttributeDefinitions:
-          - AttributeName: order_id
+          - AttributeName: local_id
+            AttributeType: S
+          - AttributeName: pedido_id
+            AttributeType: S
+          - AttributeName: correo
+            AttributeType: S
+          - AttributeName: created_at
             AttributeType: S
         KeySchema:
-          - AttributeName: order_id
+          - AttributeName: local_id
             KeyType: HASH
+          - AttributeName: pedido_id
+            KeyType: RANGE
+        GlobalSecondaryIndexes:
+          - IndexName: by_usuario
+            KeySchema:
+              - AttributeName: correo
+                KeyType: HASH
+              - AttributeName: created_at
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
         BillingMode: PAY_PER_REQUEST
 
+    # Tabla de Productos
     ProductsTable:
       Type: AWS::DynamoDB::Table
       Properties:
         TableName: ${self:provider.environment.TABLE_PRODUCTS}
         AttributeDefinitions:
-          - AttributeName: product_id
+          - AttributeName: local_id
+            AttributeType: S
+          - AttributeName: producto_id
             AttributeType: S
         KeySchema:
-          - AttributeName: product_id
+          - AttributeName: local_id
             KeyType: HASH
+          - AttributeName: producto_id
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+
+    # Tabla de Historial de Estados
+    OrderHistoryTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.TABLE_ORDER_HISTORY}
+        AttributeDefinitions:
+          - AttributeName: pedido_id
+            AttributeType: S
+          - AttributeName: estado_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: pedido_id
+            KeyType: HASH
+          - AttributeName: estado_id
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+
+    # Tabla de Tokens de Usuarios (para autenticación)
+    TokensTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.TABLE_TOKENS}
+        AttributeDefinitions:
+          - AttributeName: token
+            AttributeType: S
+        KeySchema:
+          - AttributeName: token
+            KeyType: HASH
+        TimeToLiveSpecification:
+          AttributeName: ttl
+          Enabled: true
         BillingMode: PAY_PER_REQUEST
   
   Outputs:
-    StateMachineArn:
-      Value: !Ref BurgerFlowStepFunctionsStateMachine
-      Export:
-        Name: BurgerFlowArn-${sls:stage}
     UsersTableArn:
       Value: !GetAtt UsersTable.Arn
       Export:
         Name: UsersTableArn-${sls:stage}
+    
+    EmployeesTableArn:
+      Value: !GetAtt EmployeesTable.Arn
+      Export:
+        Name: EmployeesTableArn-${sls:stage}
+    
+    LocalsTableArn:
+      Value: !GetAtt LocalsTable.Arn
+      Export:
+        Name: LocalsTableArn-${sls:stage}
+    
     OrdersTableArn:
       Value: !GetAtt OrdersTable.Arn
       Export:
         Name: OrdersTableArn-${sls:stage}
+    
     ProductsTableArn:
       Value: !GetAtt ProductsTable.Arn
       Export:
         Name: ProductsTableArn-${sls:stage}
+    
+    OrderHistoryTableArn:
+      Value: !GetAtt OrderHistoryTable.Arn
+      Export:
+        Name: OrderHistoryTableArn-${sls:stage}
+    
+    TokensTableArn:
+      Value: !GetAtt TokensTable.Arn
+      Export:
+        Name: TokensTableArn-${sls:stage}
+    
+    BurgerFlowStateMachineArn:
+      Value: !GetAtt BurgerFlowStepFunctionsStateMachine.Arn
+      Export:
+        Name: BurgerFlowStateMachineArn-${sls:stage}
+
