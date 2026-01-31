@@ -62,21 +62,6 @@ if TABLE_PRODUCTOS:
         "sk": "producto_id"
     }
 
-# DESHABILITADO: No poblar pedidos ni historial (base de datos vacía)
-# if TABLE_PEDIDOS:
-#     TABLE_MAPPING["pedidos.json"] = {
-#         "table_name": TABLE_PEDIDOS,
-#         "pk": "local_id",
-#         "sk": "pedido_id"
-#     }
-# 
-# if TABLE_HISTORIAL_ESTADOS:
-#     TABLE_MAPPING["historial_estados.json"] = {
-#         "table_name": TABLE_HISTORIAL_ESTADOS,
-#         "pk": "pedido_id",
-#         "sk": "estado_id"
-#     }
-
 if TABLE_TOKENS_USUARIOS:
     TABLE_MAPPING["tokens_usuarios.json"] = {
         "table_name": TABLE_TOKENS_USUARIOS,

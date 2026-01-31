@@ -32,7 +32,27 @@ functions:
           method: post
           authorizer: 
              type: TOKEN
-             # Usar ARN de la función auth directamente
              arn: arn:aws:lambda:${aws:region}:${aws:accountId}:function:burger-auth-${sls:stage}-auth
           cors: true
 
+  listMyOrders:
+    handler: handlers/list_my_orders.handler
+    events:
+      - http:
+          path: pedidos/mis-pedidos
+          method: get
+          authorizer: 
+             type: TOKEN
+             arn: arn:aws:lambda:${aws:region}:${aws:accountId}:function:burger-auth-${sls:stage}-auth
+          cors: true
+
+  listAllOrders:
+    handler: handlers/list_all_orders.handler
+    events:
+      - http:
+          path: pedidos/todos
+          method: get
+          authorizer: 
+             type: TOKEN
+             arn: arn:aws:lambda:${aws:region}:${aws:accountId}:function:burger-auth-${sls:stage}-auth
+          cors: true

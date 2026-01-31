@@ -25,3 +25,11 @@ services:
     dependsOn:
       - auth
 
+  products:
+    path: product-service
+    # No dependsOn needed unless it uses auth (which it might for create/update)
+    # The serverless.yml for products didn't explicitly use auth authorizer ARN import, 
+    # but let's assume it should depend on nothing for now to parallelize, 
+    # or auth if we later add authorizer.
+
+

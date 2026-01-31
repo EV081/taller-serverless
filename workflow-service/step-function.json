@@ -1,5 +1,5 @@
 {
-    "Comment": "Flujo simplificado de pedido de hamburguesas - Sin despachador",
+    "Comment": "Flujo simplificado de pedido de hamburguesas - Taller Serverless",
     "StartAt": "ValidarStock",
     "States": {
         "ValidarStock": {
@@ -18,7 +18,7 @@
         },
         "PedidoFalloStock": {
             "Type": "Fail",
-            "Cause": "No hay stock suficiente para completar el pedido",
+            "Cause": "No hay stock suficiente",
             "Error": "StockError"
         },
         "EsperarConfirmacionCocina": {
@@ -33,15 +33,7 @@
                     "stage": "PENDIENTE_COCINA"
                 }
             },
-            "TimeoutSeconds": 900,
-            "Catch": [
-                {
-                    "ErrorEquals": [
-                        "States.Timeout"
-                    ],
-                    "Next": "PedidoExpirado"
-                }
-            ],
+            "TimeoutSeconds": 300,
             "Next": "DecisionCocina",
             "ResultPath": "$.cocinaDecision"
         },
@@ -50,38 +42,11 @@
             "Choices": [
                 {
                     "Variable": "$.cocinaDecision.decision",
-                    "StringEquals": "RECHAZADO",
-                    "Next": "ReintentarCocina"
-                },
-                {
-                    "Variable": "$.cocinaDecision.decision",
                     "StringEquals": "ACEPTAR",
                     "Next": "EnPreparacion"
                 }
             ],
             "Default": "PedidoRechazadoCocina"
-        },
-        "ReintentarCocina": {
-            "Type": "Task",
-            "Resource": "arn:aws:lambda:us-east-1:287807590791:function:burger-kitchen-dev-validateStock",
-            "ResultPath": "$.retryInfo",
-            "Next": "EvaluarReintentoCocina"
-        },
-        "EvaluarReintentoCocina": {
-            "Type": "Choice",
-            "Choices": [
-                {
-                    "Variable": "$.retry_count",
-                    "NumericLessThanEquals": 3,
-                    "Next": "EsperarConfirmacionCocina"
-                }
-            ],
-            "Default": "CocinaFallida"
-        },
-        "CocinaFallida": {
-            "Type": "Fail",
-            "Cause": "La cocina rechazó el pedido más de 3 veces",
-            "Error": "MaxRetriesReached"
         },
         "PedidoRechazadoCocina": {
             "Type": "Fail",
@@ -100,23 +65,9 @@
                     "stage": "COCINANDO"
                 }
             },
-            "TimeoutSeconds": 900,
-            "Catch": [
-                {
-                    "ErrorEquals": [
-                        "States.Timeout"
-                    ],
-                    "Next": "PedidoExpirado"
-                }
-            ],
-            "Next": "ListoParaEntrega",
+            "TimeoutSeconds": 300,
+            "Next": "EsperarDelivery",
             "ResultPath": "$.preparacionInfo"
-        },
-        "ListoParaEntrega": {
-            "Type": "Pass",
-            "Result": "Pedido listo para entrega",
-            "ResultPath": "$.statusInfo",
-            "Next": "EsperarDelivery"
         },
         "EsperarDelivery": {
             "Type": "Task",
@@ -130,15 +81,7 @@
                     "stage": "LISTO_PARA_RECOJO"
                 }
             },
-            "TimeoutSeconds": 1800,
-            "Catch": [
-                {
-                    "ErrorEquals": [
-                        "States.Timeout"
-                    ],
-                    "Next": "PedidoExpirado"
-                }
-            ],
+            "TimeoutSeconds": 300,
             "Next": "DecisionDelivery",
             "ResultPath": "$.deliveryDecision"
         },
@@ -147,38 +90,16 @@
             "Choices": [
                 {
                     "Variable": "$.deliveryDecision.decision",
-                    "StringEquals": "RECHAZADO",
-                    "Next": "ReintentarDelivery"
-                },
-                {
-                    "Variable": "$.deliveryDecision.decision",
                     "StringEquals": "ACEPTAR",
                     "Next": "EnCamino"
                 }
             ],
-            "Default": "DeliveryFallido"
+            "Default": "PedidoRechazadoDelivery"
         },
-        "ReintentarDelivery": {
-            "Type": "Pass",
-            "Result": "Buscando otro repartidor",
-            "ResultPath": "$.retryInfo",
-            "Next": "EvaluarReintentoDelivery"
-        },
-        "EvaluarReintentoDelivery": {
-            "Type": "Choice",
-            "Choices": [
-                {
-                    "Variable": "$.delivery_retry_count",
-                    "NumericLessThanEquals": 3,
-                    "Next": "EsperarDelivery"
-                }
-            ],
-            "Default": "DeliveryFallido"
-        },
-        "DeliveryFallido": {
+        "PedidoRechazadoDelivery": {
             "Type": "Fail",
-            "Cause": "No se encontró repartidor disponible después de 3 intentos",
-            "Error": "MaxRetriesReached"
+            "Cause": "Delivery rechazó el pedido",
+            "Error": "DeliveryReject"
         },
         "EnCamino": {
             "Type": "Task",
@@ -192,25 +113,12 @@
                     "stage": "EN_CAMINO"
                 }
             },
-            "TimeoutSeconds": 1800,
-            "Catch": [
-                {
-                    "ErrorEquals": [
-                        "States.Timeout"
-                    ],
-                    "Next": "PedidoExpirado"
-                }
-            ],
+            "TimeoutSeconds": 300,
             "Next": "PedidoEntregado",
             "ResultPath": "$.entregaInfo"
         },
         "PedidoEntregado": {
             "Type": "Succeed"
-        },
-        "PedidoExpirado": {
-            "Type": "Fail",
-            "Cause": "El pedido expiró por timeout",
-            "Error": "Timeout"
         }
     }
 }

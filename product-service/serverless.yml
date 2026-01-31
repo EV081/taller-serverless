@@ -1,0 +1,61 @@
+service: burger-products
+
+frameworkVersion: '4'
+
+provider:
+  name: aws
+  runtime: python3.10
+  region: us-east-1
+  stage: ${opt:stage, 'dev'}
+  memorySize: 256
+  timeout: 10
+  environment:
+    TABLE_PRODUCTS: ${env:TABLE_PRODUCTOS}
+  iam:
+    role: arn:aws:iam::${env:AWS_ACCOUNT_ID}:role/LabRole
+
+custom:
+  pythonRequirements:
+    fileName: ../requirements.txt
+
+functions:
+  listProducts:
+    handler: handlers/list_products.handler
+    events:
+      - http:
+          path: productos
+          method: get
+          cors: true
+  
+  getProduct:
+    handler: handlers/get_product.handler
+    events:
+      - http:
+          path: productos/{id}
+          method: get
+          cors: true
+
+  createProduct:
+    handler: handlers/create_product.handler
+    events:
+      - http:
+          path: productos
+          method: post
+          cors: true
+          # En un scenario real, aquí iría el Authorizer ID validando rol 'gerente'
+  
+  updateProduct:
+    handler: handlers/update_product.handler
+    events:
+      - http:
+          path: productos/{id}
+          method: put
+          cors: true
+
+  deleteProduct:
+    handler: handlers/delete_product.handler
+    events:
+      - http:
+          path: productos/{id}
+          method: delete
+          cors: true
