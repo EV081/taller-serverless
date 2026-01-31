@@ -32,12 +32,7 @@ functions:
           method: post
           authorizer: 
              type: TOKEN
-             # Usaremos el ARN exacto si es posible o asumiremos el nombre estandar
-             # arn:aws:lambda:REGION:ACCOUNT:function:burger-auth-dev-auth
-             # Simplificación: Usar variable de entorno o hardcode relativo para taller
-             authorizerId: !ImportValue burger-auth-${sls:stage}-AuthorizerId 
+             # Usar ARN de la función auth directamente
+             arn: arn:aws:lambda:${aws:region}:${aws:accountId}:function:burger-auth-${sls:stage}-auth
           cors: true
 
-# Ajuste: Para authorizer cross-stack lo mas facil es ARN.
-# En el provider definiremos el authorizer global si es posible o en cada funcion.
-# Vamos a exportar el ARN de la funcion Auth en auth-service y usarlo aqui.
