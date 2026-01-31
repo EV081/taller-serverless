@@ -1,0 +1,82 @@
+[
+  {
+    "local_id": "BURGER-LOCAL-001",
+    "correo": "maria.martinez@gmail.com",
+    "contrasena": "emp_65191665",
+    "nombre": "María",
+    "apellido": "Martínez",
+    "role": "Repartidor"
+  },
+  {
+    "local_id": "BURGER-LOCAL-001",
+    "correo": "juan.castro@hotmail.com",
+    "contrasena": "emp_cc93e3e1",
+    "nombre": "Juan",
+    "apellido": "Castro",
+    "role": "Repartidor"
+  },
+  {
+    "local_id": "BURGER-LOCAL-001",
+    "correo": "isabel.rojas@hotmail.com",
+    "contrasena": "emp_f3c7098e",
+    "nombre": "Isabel",
+    "apellido": "Rojas",
+    "role": "Repartidor"
+  },
+  {
+    "local_id": "BURGER-LOCAL-001",
+    "correo": "diego.lopez@gmail.com",
+    "contrasena": "emp_0d93266f",
+    "nombre": "Diego",
+    "apellido": "López",
+    "role": "Repartidor"
+  },
+  {
+    "local_id": "BURGER-LOCAL-001",
+    "correo": "laura.rojas@outlook.com",
+    "contrasena": "emp_35f6f5fa",
+    "nombre": "Laura",
+    "apellido": "Rojas",
+    "role": "Repartidor"
+  },
+  {
+    "local_id": "BURGER-LOCAL-001",
+    "correo": "juan.lopez@outlook.com",
+    "contrasena": "emp_257e1749",
+    "nombre": "Juan",
+    "apellido": "López",
+    "role": "Cocinero"
+  },
+  {
+    "local_id": "BURGER-LOCAL-001",
+    "correo": "diego.lopez@hotmail.com",
+    "contrasena": "emp_df7b7e29",
+    "nombre": "Diego",
+    "apellido": "López",
+    "role": "Repartidor"
+  },
+  {
+    "local_id": "BURGER-LOCAL-001",
+    "correo": "laura.lopez@hotmail.com",
+    "contrasena": "emp_e77b71ad",
+    "nombre": "Laura",
+    "apellido": "López",
+    "role": "Repartidor"
+  },
+  {
+    "local_id": "BURGER-LOCAL-001",
+    "correo": "diego.martinez@gmail.com",
+    "contrasena": "emp_d973de92",
+    "nombre": "Diego",
+    "apellido": "Martínez",
+    "role": "Repartidor"
+  },
+  {
+    "local_id": "BURGER-LOCAL-001",
+    "correo": "pedro.silva@hotmail.com",
+    "contrasena": "emp_f9933e82",
+    "nombre": "Pedro",
+    "apellido": "Silva",
+    "role": "Cocinero"
+  }
+]

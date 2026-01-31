@@ -1,5 +1,4 @@
-import time
-from src.common import get_table, TABLE_PRODUCTS
+from common import get_table, TABLE_PRODUCTS
 
 def validate_stock(event, context):
     items = event.get('items', [])
@@ -18,3 +17,5 @@ def validate_stock(event, context):
             raise Exception("StockError")
         
     return event
+
+

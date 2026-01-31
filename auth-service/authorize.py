@@ -1,7 +1,7 @@
 import os
 import boto3
 from datetime import datetime
-from src.common import get_table
+from common import get_table
 
 TOKENS_TABLE_USERS = os.environ.get("TOKENS_TABLE_USERS")
 

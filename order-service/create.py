@@ -3,7 +3,7 @@ import uuid
 import time
 import os
 import boto3
-from src.common import response, get_table, TABLE_ORDERS, STATE_MACHINE_ARN, stepfunctions
+from common import response, get_table, TABLE_ORDERS, STATE_MACHINE_ARN, stepfunctions
 
 # Env vars
 TABLE_PRODUCTS = os.environ.get('TABLE_PRODUCTS')

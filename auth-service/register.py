@@ -4,7 +4,7 @@ import os
 import re
 import boto3
 from datetime import datetime, timedelta
-from src.common import response, get_table, hash_password, TABLE_USERS
+from common import response, get_table, hash_password, TABLE_USERS
 
 # Environment variable for tokens table
 TOKENS_TABLE_USERS = os.environ.get("TOKENS_TABLE_USERS")
