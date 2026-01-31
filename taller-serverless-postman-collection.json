@@ -1,155 +1,390 @@
 {
     "info": {
-        "_postman_id": "burger-cloud-taller",
-        "name": "Burger Cloud - Taller Serverless",
-        "description": "Colección para probar el flujo de Burger Cloud con Step Functions",
+        "_postman_id": "burger-cloud-taller-full",
+        "name": "Burger Cloud - Taller Serverless (Completo)",
+        "description": "Colección completa para el taller Serverless que incluye Autenticación, Productos, Pedidos y Workflow con RBAC.",
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
     },
     "item": [
         {
-            "name": "1. Crear Pedido (Trigger Workflow)",
-            "request": {
-                "method": "POST",
-                "header": [
-                    {
-                        "key": "Content-Type",
-                        "value": "application/json",
-                        "type": "text"
+            "name": "1. Autenticación",
+            "item": [
+                {
+                    "name": "Registrar Usuario (Cliente)",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"cliente@test.com\",\n    \"password\": \"123456\",\n    \"role\": \"cliente\",\n    \"nombre\": \"Cliente Test\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{api_url}}/register",
+                            "host": [
+                                "{{api_url}}"
+                            ],
+                            "path": [
+                                "register"
+                            ]
+                        }
                     }
-                ],
-                "body": {
-                    "mode": "raw",
-                    "raw": "{\n    \"source\": \"burger.pedidos\",\n    \"detailType\": \"CrearPedido\",\n    \"detail\": {\n        \"order_id\": \"pedido-{{$randomInt}}\",\n        \"local_id\": \"local_1\",\n        \"user_id\": \"user_test\",\n        \"products\": [\n            {\"id\": \"hamburguesa_clasica\", \"quantity\": 2}\n        ]\n    }\n}"
                 },
-                "url": {
-                    "raw": "{{api_url}}/eventos/trigger",
-                    "host": [
-                        "{{api_url}}"
+                {
+                    "name": "Login (Cliente)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "var jsonData = pm.response.json();",
+                                    "pm.environment.set(\"token_cliente\", jsonData.token);"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
                     ],
-                    "path": [
-                        "eventos",
-                        "trigger"
-                    ]
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"cliente@test.com\",\n    \"password\": \"123456\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{api_url}}/login",
+                            "host": [
+                                "{{api_url}}"
+                            ],
+                            "path": [
+                                "login"
+                            ]
+                        }
+                    }
                 },
-                "description": "Inicia la ejecución del Step Function simulando un evento de 'CrearPedido'"
-            },
-            "response": []
+                {
+                    "name": "Login (Cocinero)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "var jsonData = pm.response.json();",
+                                    "pm.environment.set(\"token_cocina\", jsonData.token);"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"cocina@burger.com\",\n    \"password\": \"123456\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{api_url}}/login",
+                            "host": [
+                                "{{api_url}}"
+                            ],
+                            "path": [
+                                "login"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Login (Repartidor)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "var jsonData = pm.response.json();",
+                                    "pm.environment.set(\"token_delivery\", jsonData.token);"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"delivery@burger.com\",\n    \"password\": \"123456\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{api_url}}/login",
+                            "host": [
+                                "{{api_url}}"
+                            ],
+                            "path": [
+                                "login"
+                            ]
+                        }
+                    }
+                }
+            ]
         },
         {
-            "name": "2.1 Cocina: Aceptar Pedido",
-            "request": {
-                "method": "POST",
-                "header": [
-                    {
-                        "key": "Content-Type",
-                        "value": "application/json",
-                        "type": "text"
+            "name": "2. Productos (CRUD)",
+            "item": [
+                {
+                    "name": "Listar Productos (Público)",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{api_url}}/productos?limit=10",
+                            "host": [
+                                "{{api_url}}"
+                            ],
+                            "path": [
+                                "productos"
+                            ],
+                            "query": [
+                                {
+                                    "key": "limit",
+                                    "value": "10"
+                                }
+                            ]
+                        }
                     }
-                ],
-                "body": {
-                    "mode": "raw",
-                    "raw": "{\n    \"taskToken\": \"{{task_token}}\",\n    \"decision\": \"ACEPTAR\",\n    \"empleado_correo\": \"cocina@burger.com\"\n}"
                 },
-                "url": {
-                    "raw": "{{api_url}}/callback/responder",
-                    "host": [
-                        "{{api_url}}"
-                    ],
-                    "path": [
-                        "callback",
-                        "responder"
-                    ]
+                {
+                    "name": "Crear Producto (Admin)",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"local_id\": \"local_001\",\n    \"nombre\": \"Hamburguesa Royal\",\n    \"precio\": 25.50,\n    \"stock\": 100\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{api_url}}/productos",
+                            "host": [
+                                "{{api_url}}"
+                            ],
+                            "path": [
+                                "productos"
+                            ]
+                        }
+                    }
                 },
-                "description": "Envía la confirmación de la cocina para pasar al estado 'EnPreparacion'"
-            },
-            "response": []
+                {
+                    "name": "Obtener Producto",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{api_url}}/productos/prod-xxxx?local_id=local_001",
+                            "host": [
+                                "{{api_url}}"
+                            ],
+                            "path": [
+                                "productos",
+                                "prod-xxxx"
+                            ],
+                            "query": [
+                                {
+                                    "key": "local_id",
+                                    "value": "local_001"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
         },
         {
-            "name": "2.2 Cocina: Terminar Preparación",
-            "request": {
-                "method": "POST",
-                "header": [
-                    {
-                        "key": "Content-Type",
-                        "value": "application/json",
-                        "type": "text"
+            "name": "3. Pedidos",
+            "item": [
+                {
+                    "name": "Crear Pedido (Trigger Workflow)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token_cliente}}",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"source\": \"burger.pedidos\",\n    \"detailType\": \"CrearPedido\",\n    \"detail\": {\n        \"order_id\": \"pedido-{{$randomInt}}\",\n        \"local_id\": \"local_001\",\n        \"user_id\": \"cliente@test.com\",\n        \"products\": [\n            {\"id\": \"hamburguesa_clasica\", \"quantity\": 2}\n        ]\n    }\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{api_url}}/eventos/trigger",
+                            "host": [
+                                "{{api_url}}"
+                            ],
+                            "path": [
+                                "eventos",
+                                "trigger"
+                            ]
+                        }
                     }
-                ],
-                "body": {
-                    "mode": "raw",
-                    "raw": "{\n    \"taskToken\": \"{{task_token}}\",\n    \"decision\": \"ACEPTAR\",\n    \"detalles\": \"Hamburguesas listas\"\n}"
                 },
-                "url": {
-                    "raw": "{{api_url}}/callback/responder",
-                    "host": [
-                        "{{api_url}}"
-                    ],
-                    "path": [
-                        "callback",
-                        "responder"
-                    ]
+                {
+                    "name": "Mis Pedidos (Cliente)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token_cliente}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{api_url}}/pedidos/mis-pedidos?limit=5",
+                            "host": [
+                                "{{api_url}}"
+                            ],
+                            "path": [
+                                "pedidos",
+                                "mis-pedidos"
+                            ],
+                            "query": [
+                                {
+                                    "key": "limit",
+                                    "value": "5"
+                                }
+                            ]
+                        }
+                    }
                 },
-                "description": "Se usa el mismo endpoint. Simula que la cocina terminó de preparar."
-            },
-            "response": []
+                {
+                    "name": "Todos los Pedidos (Staff)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token_cocina}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{api_url}}/pedidos/todos?limit=20",
+                            "host": [
+                                "{{api_url}}"
+                            ],
+                            "path": [
+                                "pedidos",
+                                "todos"
+                            ],
+                            "query": [
+                                {
+                                    "key": "limit",
+                                    "value": "20"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
         },
         {
-            "name": "3.1 Delivery: Aceptar Entrega",
-            "request": {
-                "method": "POST",
-                "header": [
-                    {
-                        "key": "Content-Type",
-                        "value": "application/json",
-                        "type": "text"
+            "name": "4. Workflow (Cocina & Delivery)",
+            "item": [
+                {
+                    "name": "Cocina: Aceptar Pedido",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token_cocina}}",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"taskToken\": \"{{task_token}}\",\n    \"decision\": \"ACEPTAR\",\n    \"stage\": \"cocina\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{api_url}}/callback/responder",
+                            "host": [
+                                "{{api_url}}"
+                            ],
+                            "path": [
+                                "callback",
+                                "responder"
+                            ]
+                        }
                     }
-                ],
-                "body": {
-                    "mode": "raw",
-                    "raw": "{\n    \"taskToken\": \"{{task_token}}\",\n    \"decision\": \"ACEPTAR\",\n    \"repartidor_correo\": \"delivery@burger.com\"\n}"
                 },
-                "url": {
-                    "raw": "{{api_url}}/callback/responder",
-                    "host": [
-                        "{{api_url}}"
-                    ],
-                    "path": [
-                        "callback",
-                        "responder"
-                    ]
-                },
-                "description": "Repartidor acepta el pedido. Pasa a estado 'EnCamino'."
-            },
-            "response": []
-        },
-        {
-            "name": "3.2 Delivery: Confirmar Entrega",
-            "request": {
-                "method": "POST",
-                "header": [
-                    {
-                        "key": "Content-Type",
-                        "value": "application/json",
-                        "type": "text"
+                {
+                    "name": "Delivery: Aceptar Entrega",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token_delivery}}",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"taskToken\": \"{{task_token}}\",\n    \"decision\": \"ACEPTAR\",\n    \"stage\": \"delivery\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{api_url}}/callback/responder",
+                            "host": [
+                                "{{api_url}}"
+                            ],
+                            "path": [
+                                "callback",
+                                "responder"
+                            ]
+                        }
                     }
-                ],
-                "body": {
-                    "mode": "raw",
-                    "raw": "{\n    \"taskToken\": \"{{task_token}}\",\n    \"decision\": \"ACEPTAR\",\n    \"confirmacion\": \"Entregado al cliente\"\n}"
-                },
-                "url": {
-                    "raw": "{{api_url}}/callback/responder",
-                    "host": [
-                        "{{api_url}}"
-                    ],
-                    "path": [
-                        "callback",
-                        "responder"
-                    ]
-                },
-                "description": "Repartidor confirma entrega final. Step Function termina exitosamente."
-            },
-            "response": []
+                }
+            ]
         }
     ],
     "variable": [

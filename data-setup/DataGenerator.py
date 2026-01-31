@@ -98,18 +98,33 @@ def generar_usuarios(local, cantidad=None):
     usuarios = []
     correos_usados = set()
 
-    # Gerente del local
+    # 1. Gerente del local (Generado dinámicamente)
     g = local["gerente"]
-    if g["correo"] not in correos_usados:
-        usuarios.append({
-            "correo": g["correo"],
-            "nombre": g["nombre"],
-            "contrasena": g["contrasena"],
-            "role": "Gerente"
-        })
-        correos_usados.add(g["correo"])
+    usuarios.append({
+        "correo": g["correo"],
+        "nombre": g["nombre"],
+        "contrasena": g["contrasena"],
+        "role": "Gerente"
+    })
+    correos_usados.add(g["correo"])
 
-    # Clientes
+    # 2. Usuarios de Prueba (Hardcoded)
+    usuarios_prueba = [
+        {"correo": "cliente@test.com", "nombre": "Cliente Test", "role": "Cliente", "contrasena": "123456"},
+        {"correo": "gerente@burger.com", "nombre": "Gerente Test", "role": "Gerente", "contrasena": "123456"}
+    ]
+    
+    for u in usuarios_prueba:
+        if u["correo"] not in correos_usados:
+            usuarios.append({
+                "correo": u["correo"],
+                "nombre": u["nombre"],
+                "contrasena": u["contrasena"], # hash real debería hacerse en auth-service al registrar
+                "role": u["role"]
+            })
+            correos_usados.add(u["correo"])
+
+    # 3. Clientes Aleatorios
     while len(usuarios) < cantidad:
         nombre = random.choice(NOMBRES)
         apellido = random.choice(APELLIDOS)
@@ -137,6 +152,24 @@ def generar_empleados(local, cantidad=None):
     empleados = []
     correos_usados = set()
     
+    # 1. Empleados de Prueba (Hardcoded)
+    empleados_prueba = [
+        {"correo": "cocina@burger.com", "nombre": "Chef", "apellido": "Ramsay", "role": "Cocinero"},
+        {"correo": "delivery@burger.com", "nombre": "Flash", "apellido": "Gordon", "role": "Repartidor"}
+    ]
+    
+    for emp in empleados_prueba:
+        empleados.append({
+            "local_id": local["local_id"],
+            "correo": emp["correo"],
+            "contrasena": "123456",
+            "nombre": emp["nombre"],
+            "apellido": emp["apellido"],
+            "role": emp["role"]
+        })
+        correos_usados.add(emp["correo"])
+
+    # 2. Empleados Aleatorios
     for _ in range(cantidad):
         nombre = random.choice(NOMBRES)
         apellido = random.choice(APELLIDOS)

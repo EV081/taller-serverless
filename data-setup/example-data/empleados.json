@@ -1,82 +1,98 @@
 [
   {
     "local_id": "BURGER-LOCAL-001",
-    "correo": "maria.martinez@gmail.com",
-    "contrasena": "emp_65191665",
-    "nombre": "María",
-    "apellido": "Martínez",
+    "correo": "cocina@burger.com",
+    "contrasena": "123456",
+    "nombre": "Chef",
+    "apellido": "Ramsay",
+    "role": "Cocinero"
+  },
+  {
+    "local_id": "BURGER-LOCAL-001",
+    "correo": "delivery@burger.com",
+    "contrasena": "123456",
+    "nombre": "Flash",
+    "apellido": "Gordon",
     "role": "Repartidor"
   },
   {
     "local_id": "BURGER-LOCAL-001",
-    "correo": "juan.castro@hotmail.com",
-    "contrasena": "emp_cc93e3e1",
-    "nombre": "Juan",
+    "correo": "andres.gonzalez@gmail.com",
+    "contrasena": "emp_405422e8",
+    "nombre": "Andrés",
+    "apellido": "González",
+    "role": "Repartidor"
+  },
+  {
+    "local_id": "BURGER-LOCAL-001",
+    "correo": "isabel.silva@outlook.com",
+    "contrasena": "emp_2f5efe93",
+    "nombre": "Isabel",
+    "apellido": "Silva",
+    "role": "Cocinero"
+  },
+  {
+    "local_id": "BURGER-LOCAL-001",
+    "correo": "camila.ortiz@outlook.com",
+    "contrasena": "emp_4df77346",
+    "nombre": "Camila",
+    "apellido": "Ortiz",
+    "role": "Repartidor"
+  },
+  {
+    "local_id": "BURGER-LOCAL-001",
+    "correo": "pedro.gonzalez@hotmail.com",
+    "contrasena": "emp_684a088f",
+    "nombre": "Pedro",
+    "apellido": "González",
+    "role": "Repartidor"
+  },
+  {
+    "local_id": "BURGER-LOCAL-001",
+    "correo": "ana.castro@gmail.com",
+    "contrasena": "emp_adcf5d71",
+    "nombre": "Ana",
+    "apellido": "Castro",
+    "role": "Cocinero"
+  },
+  {
+    "local_id": "BURGER-LOCAL-001",
+    "correo": "carlos.castro@outlook.com",
+    "contrasena": "emp_756f7fa0",
+    "nombre": "Carlos",
     "apellido": "Castro",
     "role": "Repartidor"
   },
   {
     "local_id": "BURGER-LOCAL-001",
-    "correo": "isabel.rojas@hotmail.com",
-    "contrasena": "emp_f3c7098e",
-    "nombre": "Isabel",
-    "apellido": "Rojas",
-    "role": "Repartidor"
-  },
-  {
-    "local_id": "BURGER-LOCAL-001",
-    "correo": "diego.lopez@gmail.com",
-    "contrasena": "emp_0d93266f",
-    "nombre": "Diego",
-    "apellido": "López",
-    "role": "Repartidor"
-  },
-  {
-    "local_id": "BURGER-LOCAL-001",
-    "correo": "laura.rojas@outlook.com",
-    "contrasena": "emp_35f6f5fa",
-    "nombre": "Laura",
-    "apellido": "Rojas",
-    "role": "Repartidor"
-  },
-  {
-    "local_id": "BURGER-LOCAL-001",
-    "correo": "juan.lopez@outlook.com",
-    "contrasena": "emp_257e1749",
+    "correo": "juan.ortiz@hotmail.com",
+    "contrasena": "emp_db0501d8",
     "nombre": "Juan",
-    "apellido": "López",
+    "apellido": "Ortiz",
+    "role": "Repartidor"
+  },
+  {
+    "local_id": "BURGER-LOCAL-001",
+    "correo": "luis.flores@gmail.com",
+    "contrasena": "emp_56432d4f",
+    "nombre": "Luis",
+    "apellido": "Flores",
     "role": "Cocinero"
   },
   {
     "local_id": "BURGER-LOCAL-001",
-    "correo": "diego.lopez@hotmail.com",
-    "contrasena": "emp_df7b7e29",
+    "correo": "luis.sanchez@hotmail.com",
+    "contrasena": "emp_c9a50267",
+    "nombre": "Luis",
+    "apellido": "Sánchez",
+    "role": "Repartidor"
+  },
+  {
+    "local_id": "BURGER-LOCAL-001",
+    "correo": "diego.flores@outlook.com",
+    "contrasena": "emp_2b80712c",
     "nombre": "Diego",
-    "apellido": "López",
-    "role": "Repartidor"
-  },
-  {
-    "local_id": "BURGER-LOCAL-001",
-    "correo": "laura.lopez@hotmail.com",
-    "contrasena": "emp_e77b71ad",
-    "nombre": "Laura",
-    "apellido": "López",
-    "role": "Repartidor"
-  },
-  {
-    "local_id": "BURGER-LOCAL-001",
-    "correo": "diego.martinez@gmail.com",
-    "contrasena": "emp_d973de92",
-    "nombre": "Diego",
-    "apellido": "Martínez",
-    "role": "Repartidor"
-  },
-  {
-    "local_id": "BURGER-LOCAL-001",
-    "correo": "pedro.silva@hotmail.com",
-    "contrasena": "emp_f9933e82",
-    "nombre": "Pedro",
-    "apellido": "Silva",
+    "apellido": "Flores",
     "role": "Cocinero"
   }
 ]
