@@ -3,16 +3,25 @@ app: taller-serverless
 stage: dev
 
 services:
-  workflow:
-    path: workflow-service
-  auth:
-    path: auth-service
-  order:
-    path: order-service
-    dependsOn: [workflow, auth]
   kitchen:
     path: kitchen-service
-    dependsOn: [workflow, auth]
+  
+  auth:
+    path: auth-service
+  
+  workflow:
+    path: workflow-service
+    dependsOn:
+      - kitchen
+      - auth
+  
+  order:
+    path: order-service
+    dependsOn:
+      - auth
+  
   delivery:
     path: delivery-service
-    dependsOn: [workflow, auth]
+    dependsOn:
+      - auth
+

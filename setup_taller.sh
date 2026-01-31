@@ -1,258 +1,352 @@
 #!/bin/bash
+set -Eeuo pipefail
 
-# Script de configuración completa para Burger Cloud (Taller Serverless)
-#
-# Uso:
-#   ./setup_taller.sh           - Setup completo (datos + despliegue)
-#   ./setup_taller.sh --deploy  - Solo desplegar servicios
-#   ./setup_taller.sh --delete  - Eliminar todos los recursos AWS
-#   ./setup_taller.sh --help    - Mostrar ayuda
+# Colores
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+NC='\033[0m'
 
-set -e
+# -------- Utilidades --------
+die() { echo -e "${RED}❌ $*${NC}"; exit 1; }
+log() { echo -e "$*"; }
 
-# ==============================================
-# FUNCIONES AUXILIARES
-# ==============================================
-
-show_help() {
-    echo "=========================================="
-    echo "🍔 BURGER CLOUD - SETUP SCRIPT"
-    echo "=========================================="
-    echo ""
-    echo "Uso: $0 [OPCIÓN]"
-    echo ""
-    echo "Opciones:"
-    echo "  (sin opción)    Setup completo: datos + despliegue"
-    echo "  --deploy        Solo desplegar servicios serverless"
-    echo "  --delete        Eliminar todos los recursos AWS"
-    echo "  --help          Mostrar esta ayuda"
-    echo ""
+show_menu() {
+  echo "=========================================="
+  echo "🍔 BURGER CLOUD - SETUP BACKEND"
+  echo "=========================================="
+  echo ""
+  echo "Selecciona una opción:"
+  echo ""
+  echo "  1) 🏗️  Desplegar todo (Infraestructura + Microservicios)"
+  echo "  2) 🗑️  Eliminar todo (Microservicios + Infraestructura)"
+  echo "  3) 📊 Solo crear infraestructura y poblar datos"
+  echo "  4) 🚀 Solo desplegar microservicios"
+  echo "  5) ❌ Salir"
+  echo ""
 }
 
-load_env() {
-    # Verificar que existe .env
-    if [ ! -f .env ]; then
-        echo "❌ Error: No existe archivo .env"
-        echo "   Copia .env.example y configúralo primero"
-        exit 1
-    fi
-    
-    # Cargar variables de entorno
-    export $(cat .env | grep -v '^#' | xargs)
-    
-    echo "📋 Configuración cargada:"
-    echo "   AWS Account: $AWS_ACCOUNT_ID"
-    echo "   AWS Region: $AWS_REGION"
-    echo "   Org Name: $ORG_NAME"
-    echo ""
+check_env() {
+  if [[ ! -f .env ]]; then
+    echo -e "${YELLOW}⚠️  Archivo .env no encontrado${NC}"
+    echo "Copia .env.example a .env y configura tus variables."
+    exit 1
+  fi
+  
+  # Carga segura de variables del .env
+  set -a
+  # shellcheck disable=SC1091
+  source .env
+  set +a
+
+  # Validaciones mínimas
+  : "${AWS_ACCOUNT_ID:?Falta AWS_ACCOUNT_ID en .env}"
+  : "${ORG_NAME:?Falta ORG_NAME en .env}"
+  : "${TABLE_USUARIOS:?Falta TABLE_USUARIOS en .env}"
+  : "${TABLE_EMPLEADOS:?Falta TABLE_EMPLEADOS en .env}"
+  : "${TABLE_LOCALES:?Falta TABLE_LOCALES en .env}"
+  : "${TABLE_PRODUCTOS:?Falta TABLE_PRODUCTOS en .env}"
+  : "${TABLE_PEDIDOS:?Falta TABLE_PEDIDOS en .env}"
+  : "${TABLE_HISTORIAL_ESTADOS:?Falta TABLE_HISTORIAL_ESTADOS en .env}"
+  : "${TABLE_TOKENS_USUARIOS:?Falta TABLE_TOKENS_USUARIOS en .env}"
+
+  export AWS_REGION="${AWS_REGION:-us-east-1}"
 }
 
-setup_data() {
-    echo "=========================================="
-    echo "🍔 BURGER CLOUD - SETUP DE DATOS"
-    echo "=========================================="
-    echo ""
-    
-    # Paso 1: Instalar dependencias de Python
-    echo "📦 Instalando dependencias de Python..."
-    pip3 install -q boto3 python-dotenv
-    echo "✅ Dependencias instaladas"
-    echo ""
-    
-    # Paso 2: Generar datos de prueba
-    echo "🎲 Generando datos de prueba..."
+check_prereqs() {
+  command -v aws >/dev/null 2>&1 || die "AWS CLI no encontrado. Instálalo y ejecuta 'aws configure'."
+  command -v python3 >/dev/null 2>&1 || die "python3 no encontrado."
+  command -v pip3 >/dev/null 2>&1 || die "pip3 no encontrado."
+  command -v serverless >/dev/null 2>&1 || die "Serverless Framework no encontrado. Instala con: npm i -g serverless"
+}
+
+deploy_infrastructure() {
+  echo -e "\n${BLUE}=========================================${NC}"
+  echo -e "${BLUE}🍔 BURGER CLOUD - SETUP DE DATOS${NC}"
+  echo -e "${BLUE}=========================================${NC}\n"
+  
+  # Paso 1: Instalar dependencias de Python
+  echo -e "${YELLOW}📦 Instalando dependencias de Python...${NC}"
+  pip3 install -q boto3 python-dotenv 2>/dev/null || pip3 install boto3 python-dotenv
+  echo -e "${GREEN}✅ Dependencias instaladas${NC}\n"
+  
+  # Paso 2: Generar datos de prueba
+  if [[ -f "data-setup/DataGenerator.py" ]]; then
+    echo -e "${BLUE}🎲 Generando datos de prueba...${NC}"
     cd data-setup
     python3 DataGenerator.py
     if [ $? -eq 0 ]; then
-        echo "✅ Datos generados exitosamente"
+      echo -e "${GREEN}✅ Datos generados exitosamente${NC}"
     else
-        echo "❌ Error al generar datos"
-        exit 1
+      echo -e "${RED}❌ Error al generar datos${NC}"
+      exit 1
     fi
     cd ..
     echo ""
-    
-    # Paso 3: Crear tablas y poblar con datos
-    echo "🗄️  Creando tablas DynamoDB y poblando datos..."
+  else
+    echo -e "${YELLOW}ℹ️  No se encontró DataGenerator.py. Saltando generación de datos.${NC}\n"
+  fi
+  
+  # Paso 3: Crear tablas y poblar con datos
+  if [[ -f "data-setup/DataPoblator.py" ]]; then
+    echo -e "${BLUE}🗄️  Creando tablas DynamoDB y poblando datos...${NC}"
     cd data-setup
     python3 DataPoblator.py
     if [ $? -eq 0 ]; then
-        echo "✅ Tablas creadas y pobladas exitosamente"
+      echo -e "${GREEN}✅ Tablas creadas y pobladas exitosamente${NC}"
     else
-        echo "❌ Error al crear o poblar tablas"
-        exit 1
+      echo -e "${RED}❌ Error al crear o poblar tablas${NC}"
+      exit 1
     fi
     cd ..
     echo ""
+  else
+    echo -e "${YELLOW}ℹ️  No se encontró DataPoblator.py. Saltando población de datos.${NC}\n"
+  fi
+
+  echo -e "${GREEN}✅ Infraestructura lista${NC}"
+}
+
+cleanup_failed_stacks() {
+  echo -e "${BLUE}🧹 Limpiando stacks fallidos...${NC}"
+  
+  local stacks=(
+    "burger-workflow-dev"
+    "burger-order-dev"
+    "burger-delivery-dev"
+    "burger-auth-dev"
+    "burger-kitchen-dev"
+  )
+  
+  for stack in "${stacks[@]}"; do
+    local status=$(aws cloudformation describe-stacks --stack-name "$stack" --region "${AWS_REGION}" --query 'Stacks[0].StackStatus' --output text 2>/dev/null || echo "NOT_FOUND")
+    
+    if [[ "$status" == "DELETE_FAILED" ]] || [[ "$status" == "ROLLBACK_FAILED" ]] || [[ "$status" == "UPDATE_ROLLBACK_FAILED" ]]; then
+      echo -e "${YELLOW}   Limpiando stack fallido: $stack (estado: $status)${NC}"
+      aws cloudformation delete-stack --stack-name "$stack" --region "${AWS_REGION}" 2>/dev/null || true
+      sleep 2
+    fi
+  done
+  
+  echo -e "${GREEN}✅ Limpieza de stacks completada${NC}\n"
 }
 
 deploy_service() {
-    local service_name=$1
-    local service_path=$2
-    
-    echo "📦 Desplegando $service_name..."
-    cd $service_path
-    serverless deploy --verbose
-    if [ $? -eq 0 ]; then
-        echo "✅ $service_name desplegado"
-    else
-        echo "❌ Error al desplegar $service_name"
-        return 1
-    fi
-    cd - > /dev/null
-    echo ""
+  local service_name=$1
+  local service_path=$2
+  
+  echo -e "${YELLOW}📦 Desplegando $service_name...${NC}"
+  cd "$service_path"
+  serverless deploy
+  if [ $? -eq 0 ]; then
+    echo -e "${GREEN}✅ $service_name desplegado${NC}\n"
+  else
+    echo -e "${RED}❌ Error al desplegar $service_name${NC}"
+    return 1
+  fi
+  cd - > /dev/null
 }
 
 deploy_services() {
-    echo "=========================================="
-    echo "🚀 DESPLEGANDO SERVICIOS"
-    echo "=========================================="
-    echo ""
-    
-    # Verificar que serverless está instalado
-    if ! command -v serverless &> /dev/null; then
-        echo "⚠️  Serverless Framework no encontrado. Instalando..."
-        npm install -g serverless
-    fi
-    
-    # Desplegar en orden: primero los servicios que exportan Lambdas,
-    # luego los que las importan
-    
-    # Desplegar kitchen-service (exporta validateStock)
-    deploy_service "Kitchen Service" "kitchen-service"
-    
-    # Desplegar auth-service (exporta registerToken)
-    deploy_service "Auth Service" "auth-service"
-    
-    # Desplegar workflow-service (NO crea tablas, solo configuración)
-    deploy_service "Workflow Service" "workflow-service"
-    
-    # Desplegar order-service
-    deploy_service "Order Service" "order-service"
-    
-    # Desplegar delivery-service
-    deploy_service "Delivery Service" "delivery-service"
-    
-    echo "=========================================="
-    echo "✅ DESPLIEGUE COMPLETADO"
-    echo "=========================================="
-    echo ""
-    echo "🔗 API Endpoints desplegados. Revisa los outputs de Serverless arriba."
-    echo ""
+  echo -e "\n${BLUE}=========================================${NC}"
+  echo -e "${BLUE}🚀 DESPLEGANDO SERVICIOS${NC}"
+  echo -e "${BLUE}=========================================${NC}\n"
+  
+  # Verificar que serverless está instalado
+  if ! command -v serverless &> /dev/null; then
+    echo -e "${YELLOW}⚠️  Serverless Framework no encontrado. Instalando...${NC}"
+    npm install -g serverless
+  fi
+  
+  # Limpiar stacks fallidos
+  cleanup_failed_stacks
+  
+  # Desplegar todos los servicios usando Serverless Compose
+  echo -e "${YELLOW}📦 Desplegando todos los servicios con Serverless Compose...${NC}\n"
+  
+  serverless deploy
+  
+  if [ $? -eq 0 ]; then
+    echo -e "\n${GREEN}✅ Todos los servicios desplegados exitosamente${NC}\n"
+  else
+    echo -e "\n${RED}❌ Error al desplegar servicios${NC}"
+    return 1
+  fi
+  
+  echo -e "${BLUE}=========================================${NC}"
+  echo -e "${GREEN}✅ DESPLIEGUE COMPLETADO${NC}"
+  echo -e "${BLUE}=========================================${NC}\n"
 }
 
-remove_service() {
-    local service_name=$1
-    local service_path=$2
-    
-    echo "🗑️  Eliminando $service_name..."
-    cd $service_path
-    serverless remove --verbose || true
-    cd - > /dev/null
-    echo ""
+remove_services() {
+  echo -e "\n${RED}🗑️  ELIMINANDO SERVICIOS${NC}\n"
+  
+  # Eliminar todos los servicios usando Serverless Compose
+  echo -e "${YELLOW}Eliminando todos los servicios con Serverless Compose...${NC}\n"
+  
+  serverless remove 2>/dev/null || true
+  
+  echo -e "${GREEN}✅ Servicios eliminados${NC}"
 }
 
 delete_tables() {
-    echo "🗑️  Eliminando tablas DynamoDB..."
-    
-    local tables=(
-        "$TABLE_USUARIOS"
-        "$TABLE_EMPLEADOS"
-        "$TABLE_LOCALES"
-        "$TABLE_PRODUCTOS"
-        "$TABLE_PEDIDOS"
-        "$TABLE_HISTORIAL_ESTADOS"
-        "$TABLE_TOKENS_USUARIOS"
-    )
-    
-    for table in "${tables[@]}"; do
-        echo "   Eliminando tabla: $table"
-        aws dynamodb delete-table --table-name "$table" --region "$AWS_REGION" 2>/dev/null || \
-            echo "   ⚠️  Tabla $table no existe o ya fue eliminada"
-    done
-    
-    echo "✅ Tablas DynamoDB eliminadas"
-    echo ""
+  echo -e "${YELLOW}🗑️  Eliminando tablas DynamoDB...${NC}"
+  
+  local tables=(
+    "$TABLE_USUARIOS"
+    "$TABLE_EMPLEADOS"
+    "$TABLE_LOCALES"
+    "$TABLE_PRODUCTOS"
+    "$TABLE_PEDIDOS"
+    "$TABLE_HISTORIAL_ESTADOS"
+    "$TABLE_TOKENS_USUARIOS"
+  )
+  
+  for table in "${tables[@]}"; do
+    echo -e "   Eliminando tabla: $table"
+    aws dynamodb delete-table --table-name "$table" --region "$AWS_REGION" 2>/dev/null || \
+      echo -e "${YELLOW}   ⚠️  Tabla $table no existe o ya fue eliminada${NC}"
+  done
+  
+  echo -e "${GREEN}✅ Tablas DynamoDB eliminadas${NC}\n"
 }
 
-delete_all() {
-    echo "=========================================="
-    echo "🗑️  ELIMINANDO TODOS LOS RECURSOS"
-    echo "=========================================="
-    echo ""
-    
-    read -p "⚠️  ¿Estás seguro de eliminar TODOS los recursos? (s/N): " confirm
-    if [[ ! $confirm =~ ^[sS]$ ]]; then
-        echo "Operación cancelada"
-        exit 0
-    fi
-    
-    echo ""
-    
-    # Eliminar servicios serverless (en orden inverso)
-    remove_service "Delivery Service" "delivery-service"
-    remove_service "Order Service" "order-service"
-    remove_service "Workflow Service" "workflow-service"
-    remove_service "Auth Service" "auth-service"
-    remove_service "Kitchen Service" "kitchen-service"
-    
-    # Eliminar tablas DynamoDB
-    delete_tables
-    
-    echo "=========================================="
-    echo "✅ ELIMINACIÓN COMPLETADA"
-    echo "=========================================="
-    echo ""
+remove_infrastructure() {
+  echo -e "\n${RED}🗑️  ELIMINANDO INFRAESTRUCTURA${NC}\n"
+  delete_tables
+  echo -e "${GREEN}✅ Infraestructura eliminada${NC}"
 }
 
-full_setup() {
-    echo "=========================================="
-    echo "🍔 BURGER CLOUD - SETUP COMPLETO"
-    echo "=========================================="
-    echo ""
-    
-    load_env
-    setup_data
-    deploy_services
-    
-    echo "🎉 Taller configurado exitosamente!"
-    echo ""
-    echo "📊 Tablas creadas:"
-    echo "   - $TABLE_USUARIOS"
-    echo "   - $TABLE_EMPLEADOS"
-    echo "   - $TABLE_LOCALES"
-    echo "   - $TABLE_PRODUCTOS"
-    echo "   - $TABLE_PEDIDOS"
-    echo "   - $TABLE_HISTORIAL_ESTADOS"
-    echo "   - $TABLE_TOKENS_USUARIOS"
-    echo ""
-    echo "📖 Consulta GUIA_TALLER.md para instrucciones de uso."
-    echo ""
+show_deployment_summary() {
+  echo ""
+  echo -e "${BLUE}=========================================${NC}"
+  echo -e "${BLUE}📋 RESUMEN DEL DESPLIEGUE${NC}"
+  echo -e "${BLUE}=========================================${NC}\n"
+  
+  echo -e "${GREEN}✅ Infraestructura:${NC}"
+  echo "   • 7 tablas DynamoDB creadas"
+  echo "   • Burger-Usuarios"
+  echo "   • Burger-Empleados"
+  echo "   • Burger-Locales"
+  echo "   • Burger-Productos"
+  echo "   • Burger-Pedidos"
+  echo "   • Burger-Historial-Estados"
+  echo "   • Burger-Tokens-Usuarios"
+  echo ""
+  
+  echo -e "${GREEN}✅ Microservicios desplegados:${NC}"
+  echo "   • burger-kitchen (Validación de stock)"
+  echo "   • burger-auth (Autenticación y tokens)"
+  echo "   • burger-workflow (Orquestación con Step Functions)"
+  echo "   • burger-order (Gestión de pedidos)"
+  echo "   • burger-delivery (Gestión de entregas)"
+  echo ""
+  
+  echo -e "${GREEN}✅ EventBridge y Step Functions:${NC}"
+  echo "   • EventBridge rules creadas para burger.pedidos, burger.cocina, burger.delivery"
+  echo "   • Step Function BurgerFlow-dev (crear manualmente en AWS Console)"
+  echo ""
+  
+  echo -e "${YELLOW}📡 Próximos pasos:${NC}\n"
+  
+  echo "1. Crear Step Function manualmente:"
+  echo "   • Ve a AWS Console → Step Functions"
+  echo "   • Create state machine → Standard"
+  echo "   • Copia el contenido de workflow-service/step-function.json"
+  echo "   • Name: BurgerFlow-dev"
+  echo "   • Role: LabRole"
+  echo ""
+  
+  echo "2. Obtener URLs de API Gateway:"
+  echo "   aws apigatewayv2 get-apis --query 'Items[].{Name:Name,Endpoint:ApiEndpoint}' --output table"
+  echo ""
+  
+  echo "3. Probar el sistema:"
+  echo "   • Ver README.md de cada servicio para ejemplos"
+  echo "   • Usar endpoint POST /eventos/trigger para disparar flujos"
+  echo "   • Usar endpoint POST /callback/responder para callbacks"
+  echo ""
+  
+  echo "4. Ver logs de una función:"
+  echo "   aws logs tail /aws/lambda/NOMBRE_FUNCION --follow"
+  echo ""
+  
+  echo -e "${BLUE}=========================================${NC}\n"
 }
 
-# ==============================================
-# MAIN
-# ==============================================
+main() {
+  check_env
+  check_prereqs
 
-case "${1:-}" in
-    --help)
-        show_help
-        ;;
-    --deploy)
-        load_env
-        deploy_services
-        ;;
-    --delete)
-        load_env
-        delete_all
-        ;;
-    "")
-        full_setup
-        ;;
-    *)
-        echo "❌ Opción desconocida: $1"
+  while true; do
+    show_menu
+    read -rp "Opción: " option
+
+    case "$option" in
+      1)
         echo ""
-        show_help
-        exit 1
+        echo "=========================================="
+        echo "🏗️  DESPLIEGUE COMPLETO"
+        echo "=========================================="
+        deploy_infrastructure
+        deploy_services
+        show_deployment_summary
+        echo ""
+        echo -e "${GREEN}=========================================${NC}"
+        echo -e "${GREEN}🎉 DESPLIEGUE COMPLETADO EXITOSAMENTE${NC}"
+        echo -e "${GREEN}=========================================${NC}"
+        break
         ;;
-esac
+      2)
+        echo ""
+        echo "=========================================="
+        echo "🗑️  ELIMINACIÓN COMPLETA"
+        echo "=========================================="
+        echo -e "${RED}⚠️  ADVERTENCIA: Esto eliminará TODOS los recursos${NC}"
+        read -rp "¿Estás seguro? (escribe 'SI' para confirmar): " confirm
+        if [[ "$confirm" == "SI" ]]; then
+          remove_services
+          remove_infrastructure
+          echo ""
+          echo -e "${GREEN}=========================================${NC}"
+          echo -e "${GREEN}✅ ELIMINACIÓN COMPLETADA${NC}"
+          echo -e "${GREEN}=========================================${NC}"
+        else
+          echo -e "${YELLOW}Operación cancelada${NC}"
+        fi
+        break
+        ;;
+      3)
+        echo ""
+        echo "=========================================="
+        echo "📊 SOLO INFRAESTRUCTURA"
+        echo "=========================================="
+        deploy_infrastructure
+        echo ""
+        echo -e "${GREEN}✅ Infraestructura creada${NC}"
+        break
+        ;;
+      4)
+        echo ""
+        echo "=========================================="
+        echo "🚀 SOLO MICROSERVICIOS"
+        echo "=========================================="
+        deploy_services
+        show_deployment_summary
+        echo ""
+        echo -e "${GREEN}✅ Microservicios desplegados${NC}"
+        break
+        ;;
+      5)
+        echo -e "${YELLOW}Saliendo...${NC}"
+        exit 0
+        ;;
+      *)
+        echo -e "${RED}Opción inválida${NC}"
+        ;;
+    esac
+  done
+}
+
+main
