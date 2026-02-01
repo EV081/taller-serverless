@@ -32,8 +32,10 @@ def handler(event, context):
          return _resp(403, {'error': f'Acceso denegado: se requiere rol Cocinero o Repartidor'})
     
     try:
-        limit = int(event.get('queryStringParameters', {}).get('limit', 20))
-        last_key = event.get('queryStringParameters', {}).get('lastKey')
+        # Handle None queryStringParameters
+        query_params = event.get('queryStringParameters') or {}
+        limit = int(query_params.get('limit', 20))
+        last_key = query_params.get('lastKey')
         
         scan_kwargs = {
             'Limit': limit
@@ -47,12 +49,10 @@ def handler(event, context):
         items = response.get('Items', [])
         last_evaluated_key = response.get('LastEvaluatedKey')
         
-        return {
-            'statusCode': 200,
-            'body': json.dumps({
-                'items': items,
-                'lastKey': json.dumps(last_evaluated_key) if last_evaluated_key else None
-            }, default=str)
-        }
+        return _resp(200, {
+            'items': items,
+            'lastKey': json.dumps(last_evaluated_key) if last_evaluated_key else None
+        })
     except Exception as e:
-        return {'statusCode': 500, 'body': json.dumps({'error': str(e)})}
+        print(f"Error listing all orders: {e}")
+        return _resp(500, {'error': str(e)})

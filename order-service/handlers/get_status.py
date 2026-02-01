@@ -15,8 +15,8 @@ def handler(event, context):
         if not valido:
             return response(403, {"message": error or "Token inválido"})
         
-        # Expect query parameters
-        qs = event.get('queryStringParameters', {})
+        # Expect query parameters - handle None
+        qs = event.get('queryStringParameters') or {}
         local_id = qs.get('local_id')
         pedido_id = qs.get('pedido_id')
         
