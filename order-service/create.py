@@ -98,18 +98,24 @@ def create_order(event, context):
         }
         table_orders.put_item(Item=item_order)
 
-        # 3. Start Workflow
-        sf_input = json.dumps({
-            "order_id": order_id,
-            "local_id": local_id, # Pass to SF for callbacks
-            "items": items_internal
-        })
-        
-        stepfunctions.start_execution(
-            stateMachineArn=STATE_MACHINE_ARN,
-            name=order_id,
-            input=sf_input
-        )
+        # 3. Start Workflow (optional - only if Step Function exists)
+        try:
+            sf_input = json.dumps({
+                "order_id": order_id,
+                "local_id": local_id,
+                "items": items_internal
+            })
+            
+            stepfunctions.start_execution(
+                stateMachineArn=STATE_MACHINE_ARN,
+                name=order_id,
+                input=sf_input
+            )
+            print(f"Workflow started for order {order_id}")
+        except Exception as sf_error:
+            # Log the error but don't fail the order creation
+            print(f"Warning: Could not start workflow for order {order_id}: {sf_error}")
+            # Order is still created successfully even if workflow fails
 
         return response(201, {"message": "Pedido creado", "order_id": order_id})
 
