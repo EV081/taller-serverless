@@ -39,12 +39,12 @@ def take(event, context):
         # Log History
         table_history = get_table(TABLE_HISTORIAL_ESTADOS)
         iso_time = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime())
-        history_timestamp = int(time.time() * 1000)
+        estado_id = str(uuid.uuid4())
         table_history.put_item(Item={
             'pedido_id': order_id,
-            'timestamp': history_timestamp,
-            'status': 'EN_CAMINO',
-            'fecha': iso_time
+            'estado_id': estado_id,
+            'estado': 'EN_CAMINO',
+            'timestamp': iso_time
         })
 
         stepfunctions.send_task_success(taskToken=token, output=json.dumps({"status": "PICKED_UP"}))
