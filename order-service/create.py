@@ -101,10 +101,12 @@ def create_order(event, context):
 
         # 3. Log History
         table_history = get_table(TABLE_HISTORIAL_ESTADOS)
-        history_timestamp = int(time.time() * 1000)  # milliseconds for sort key
+        history_timestamp = int(time.time() * 1000)  # milliseconds
+        estado_id = f"CREADO-{history_timestamp}"  # Unique estado_id
         table_history.put_item(Item={
             'pedido_id': order_id,      # PK - must match order table
-            'timestamp': history_timestamp,  # SK - sort key
+            'estado_id': estado_id,     # SK - sort key (required by table schema)
+            'timestamp': history_timestamp,
             'status': 'CREADO',
             'fecha': iso_time
         })
