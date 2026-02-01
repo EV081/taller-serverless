@@ -14,6 +14,8 @@ def handler(event, context):
         
         local_id = body.get('local_id', 'local_001')
         nombre = body.get('nombre')
+        descripcion = body.get('descripcion')
+        categoria = body.get('categoria')
         precio = body.get('precio')
         stock = body.get('stock', 0)
         
@@ -26,6 +28,8 @@ def handler(event, context):
             'local_id': local_id,
             'producto_id': product_id,
             'nombre': nombre,
+            'descripcion': descripcion,
+            'categoria': categoria,
             'precio': str(precio),
             'stock': int(stock),
             'imagen': body.get('imagen', '')

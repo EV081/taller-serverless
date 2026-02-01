@@ -17,45 +17,50 @@ def create_order(event, context):
         username = user_context.get('username') or event.get('requestContext', {}).get('authorizer', {}).get('principalId')
         
         body = json.loads(event.get('body', '{}'))
-        items = body.get('items', []) 
-
-        if not items:
-            return response(400, {"error": "El pedido debe tener items"})
         
+        # New Schema Extraction
+        local_id = body.get('local_id')
+        productos = body.get('productos', [])
+        costo_user = body.get('costo')
+        direccion = body.get('direccion')
+        estado_inicial = body.get('estado', 'procesando')
+
+        if not local_id or not productos:
+             return response(400, {"error": "Faltan datos requeridos (local_id, productos)"})
+
         # 1. Validate Stock and Calculate Total
         table_products = get_table(TABLE_PRODUCTS)
-        total_price = 0
+        total_price = 0.0
         
-        # Logic: We need to decrement stock. Because this is distributed, ideally we use transactions.
-        # For simplicity in this workshop, we iterate and update.
-        # If any product has insufficient stock, we abort.
-        # CAUTION: Race conditions are possible here without transactions (TransactWriteItems).
-        # We will assume happy path or simple check-then-act for workshop scope, 
-        # OR implement simple decrement.
+        items_internal = [] # Standardize for internal use
+        for p in productos:
+            pid = p.get('producto_id')
+            qty = int(p.get('cantidad', 1))
+            items_internal.append({'product_id': pid, 'quantity': qty})
         
         # Verification pass
-        for item in items:
-            product_id = item.get('product_id')
-            quantity = item.get('quantity', 1)
+        for item in items_internal:
+            product_id = item['product_id']
+            quantity = item['quantity']
             
-            p_res = table_products.get_item(Key={'product_id': product_id})
+            p_res = table_products.get_item(Key={'local_id': local_id, 'producto_id': product_id})
             if 'Item' not in p_res:
-                 return response(400, {"error": f"Producto {product_id} no existe"})
+                 return response(400, {"error": f"Producto {product_id} no existe en {local_id}"})
             
             product = p_res['Item']
             stock = int(product.get('stock', 0))
             if stock < quantity:
-                return response(400, {"error": f"Stock insuficiente para {product.get('name')}"})
+                return response(400, {"error": f"Stock insuficiente para {product.get('nombre')}"})
             
-            total_price += float(product.get('price', 0)) * quantity
+            total_price += float(product.get('precio', 0)) * quantity
 
         # Update Stock pass (Decrement)
-        for item in items:
-            product_id = item.get('product_id')
-            quantity = item.get('quantity', 1)
+        for item in items_internal:
+            product_id = item['product_id']
+            quantity = item['quantity']
             
             table_products.update_item(
-                Key={'product_id': product_id},
+                Key={'local_id': local_id, 'producto_id': product_id},
                 UpdateExpression="set stock = stock - :val",
                 ExpressionAttributeValues={':val': quantity},
                 ReturnValues="UPDATED_NEW"
@@ -66,18 +71,17 @@ def create_order(event, context):
         timestamp = int(time.time())
         iso_time = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(timestamp))
         
-        # FIXED: Use consistent LOCAL_ID matching DataGenerator
-        local_id = "BURGER-LOCAL-001"
-
         table_orders = get_table(TABLE_ORDERS)
         item_order = {
             'local_id': local_id,      # PK
             'pedido_id': order_id,     # SK
-            'correo': username,        # GSI Key (Important for list_my_orders)
-            'user_id': username,       # Legacy/Backup
-            'status': 'CREADO',
-            'items': items,
-            'total_price': str(total_price), 
+            'correo': username,        # GSI Key
+            'user_id': username,       # Legacy
+            'status': estado_inicial,
+            'items': items_internal,
+            'productos': productos,    # Store original format too
+            'total_price': str(costo_user if costo_user else total_price), 
+            'direccion': direccion,
             'created_at': iso_time,
             'updated_at': iso_time
         }

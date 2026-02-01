@@ -56,3 +56,22 @@ functions:
              type: TOKEN
              arn: arn:aws:lambda:${aws:region}:${aws:accountId}:function:burger-auth-${sls:stage}-auth
           cors: true
+
+  checkStatus:
+    handler: handlers/get_status.handler
+    events:
+      - http:
+          path: pedido/status
+          method: get
+          cors: true
+
+  orderHistory:
+    handler: handlers/list_my_orders.handler # Reusing listMyOrders as per requirement
+    events:
+      - http:
+          path: pedido/historial
+          method: get
+          authorizer: 
+             type: TOKEN
+             arn: arn:aws:lambda:${aws:region}:${aws:accountId}:function:burger-auth-${sls:stage}-auth
+          cors: true

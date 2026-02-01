@@ -8,11 +8,20 @@ def handler(event, context):
     table_name = os.environ.get('TABLE_PRODUCTS')
     table = dynamodb.Table(table_name)
     
-    product_id = event.get('pathParameters', {}).get('id')
-    # Necesitamos local_id, asumimos un default o lo pedimos en query param
-    # La key schema es (local_id, producto_id)
-    local_id = event.get('queryStringParameters', {}).get('local_id', 'local_001') 
+    # Try Body first, then Query/Path
+    body = {}
+    if event.get('body'):
+        try:
+            body = json.loads(event.get('body'))
+        except:
+            pass
+            
+    product_id = body.get('producto_id') or event.get('pathParameters', {}).get('id')
+    local_id = body.get('local_id') or event.get('queryStringParameters', {}).get('local_id', 'BURGER-LOCAL-001')
     
+    if not product_id:
+        return {'statusCode': 400, 'body': json.dumps({'error': 'Falta producto_id'})}
+
     try:
         response = table.get_item(Key={'local_id': local_id, 'producto_id': product_id})
         item = response.get('Item')
