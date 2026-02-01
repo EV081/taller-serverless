@@ -38,6 +38,14 @@ functions:
           path: login
           method: post
           cors: true
+
+  loginEmpleado:
+    handler: login_empleado.login_empleado
+    events:
+      - http:
+          path: login/empleado
+          method: post
+          cors: true
   
   registerToken:
     handler: register_token.register_token
