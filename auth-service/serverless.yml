@@ -31,7 +31,15 @@ functions:
       - http:
           path: register
           method: post
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+            allowCredentials: false
   
   login:
     handler: login.login
@@ -39,7 +47,15 @@ functions:
       - http:
           path: login
           method: post
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+            allowCredentials: false
 
   loginEmpleado:
     handler: login_empleado.login_empleado
@@ -47,7 +63,15 @@ functions:
       - http:
           path: login/empleado
           method: post
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+            allowCredentials: false
   
   registerToken:
     handler: register_token.register_token

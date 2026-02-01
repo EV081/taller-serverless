@@ -34,7 +34,15 @@ functions:
           authorizer: 
              type: TOKEN
              arn: arn:aws:lambda:${aws:region}:${aws:accountId}:function:burger-auth-${sls:stage}-auth
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+            allowCredentials: false
 
   listMyOrders:
     handler: handlers/list_my_orders.handler
@@ -45,7 +53,15 @@ functions:
           authorizer: 
              type: TOKEN
              arn: arn:aws:lambda:${aws:region}:${aws:accountId}:function:burger-auth-${sls:stage}-auth
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+            allowCredentials: false
 
   listAllOrders:
     handler: handlers/list_all_orders.handler
@@ -56,7 +72,15 @@ functions:
           authorizer: 
              type: TOKEN
              arn: arn:aws:lambda:${aws:region}:${aws:accountId}:function:burger-auth-${sls:stage}-auth
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+            allowCredentials: false
 
   checkStatus:
     handler: handlers/get_status.handler
@@ -64,7 +88,15 @@ functions:
       - http:
           path: pedido/status
           method: get
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+            allowCredentials: false
 
   orderHistory:
     handler: handlers/list_my_orders.handler # Reusing listMyOrders as per requirement
@@ -75,4 +107,12 @@ functions:
           authorizer: 
              type: TOKEN
              arn: arn:aws:lambda:${aws:region}:${aws:accountId}:function:burger-auth-${sls:stage}-auth
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+            allowCredentials: false

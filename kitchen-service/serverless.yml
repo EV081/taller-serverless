@@ -33,7 +33,15 @@ functions:
       - http:
           path: cocina/pendientes
           method: get
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+            allowCredentials: false
   
   listKitchenCooking:
     handler: list.list_cooking
@@ -41,7 +49,15 @@ functions:
       - http:
           path: cocina/en-curso
           method: get
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+            allowCredentials: false
 
   confirmKitchen:
     handler: confirm.confirm
@@ -49,7 +65,15 @@ functions:
       - http:
           path: cocina/confirmar
           method: post
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+            allowCredentials: false
 
   completeCooking:
     handler: complete.complete
@@ -57,7 +81,15 @@ functions:
       - http:
           path: cocina/terminar
           method: post
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+            allowCredentials: false
 
 resources:
   Outputs:
