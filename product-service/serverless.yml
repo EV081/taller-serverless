@@ -16,7 +16,23 @@ provider:
   # layers:
   #   - ${cf:millas-dependencias-dev.PythonDependenciesLayerExport}  
   httpApi:
-    cors: true
+    cors:
+      allowedOrigins:
+        - '*'
+      allowedHeaders:
+        - Content-Type
+        - Authorization
+        - X-Amz-Date
+        - X-Api-Key
+        - X-Amz-Security-Token
+      allowedMethods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - OPTIONS
+      allowCredentials: false
+      maxAge: 6000
 
 functions:
   CreateProduct:
