@@ -113,7 +113,7 @@ def create_order(event, context):
         sf_input = json.dumps({
             "order_id": order_id,
             "local_id": local_id, # Pass to SF for callbacks
-            "items": items
+            "items": items_internal  # Fixed: use items_internal instead of undefined 'items'
         })
         
         stepfunctions.start_execution(
