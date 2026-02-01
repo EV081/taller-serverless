@@ -41,7 +41,7 @@ def validate_token_via_lambda(token: str) -> Tuple[bool, str, str]:
         Tuple of (is_valid, error_message, role)
         - is_valid: True if token is valid
         - error_message: Error description if invalid
-        - role: User role (Admin, Gerente, Usuario, Cocinero, Repartidor, etc.)
+        - role: User role (Admin, Gerente, Cliente, Cocinero, Repartidor, etc.)
     """
     if not token:
         return (False, "Token no proporcionado", "")

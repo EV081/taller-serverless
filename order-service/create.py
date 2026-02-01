@@ -12,16 +12,16 @@ TABLE_HISTORIAL_ESTADOS = os.environ.get('TABLE_HISTORIAL_ESTADOS')
 
 def create_order(event, context):
     try:
-        # Validate token and role - require Usuario role
+        # Validate token and role - require Cliente role
         token = get_bearer_token(event)
         valido, error, rol = validate_token_via_lambda(token)
         
         if not valido:
             return response(403, {"message": error or "Token inválido"})
         
-        # Require Usuario role for creating orders
-        if rol not in ("Usuario", "Admin"):
-            return response(403, {"message": "Permiso denegado: solo usuarios pueden crear pedidos"})
+        # Require Cliente role for creating orders
+        if rol not in ("Cliente", "Admin"):
+            return response(403, {"message": "Permiso denegado: solo clientes pueden crear pedidos"})
         
         user_context = event.get('requestContext', {}).get('authorizer', {})
         # Note: 'username' might come from principalId or context depending on Authorizer
