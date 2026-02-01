@@ -101,12 +101,12 @@ def create_order(event, context):
 
         # 3. Log History
         table_history = get_table(TABLE_HISTORIAL_ESTADOS)
-        history_id = str(uuid.uuid4())
+        history_timestamp = int(time.time() * 1000)  # milliseconds for sort key
         table_history.put_item(Item={
-            'history_id': history_id,
-            'order_id': order_id, # This table uses order_id as PK, so this is fine if schema matches
+            'pedido_id': order_id,      # PK - must match order table
+            'timestamp': history_timestamp,  # SK - sort key
             'status': 'CREADO',
-            'timestamp': iso_time
+            'fecha': iso_time
         })
 
         # 4. Start Workflow
