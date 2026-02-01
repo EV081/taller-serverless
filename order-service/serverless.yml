@@ -116,3 +116,31 @@ functions:
               - X-Api-Key
               - X-Amz-Security-Token
             allowCredentials: false
+
+resources:
+  Resources:
+    # Add Gateway Response for Unauthorized errors to include CORS headers
+    GatewayResponseUnauthorized:
+      Type: 'AWS::ApiGateway::GatewayResponse'
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
+          gatewayresponse.header.Access-Control-Allow-Methods: "'GET,POST,PUT,DELETE,OPTIONS'"
+        ResponseType: UNAUTHORIZED
+        RestApiId:
+          Ref: 'ApiGatewayRestApi'
+        StatusCode: '401'
+    
+    # Add Gateway Response for Access Denied errors to include CORS headers
+    GatewayResponseAccessDenied:
+      Type: 'AWS::ApiGateway::GatewayResponse'
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
+          gatewayresponse.header.Access-Control-Allow-Methods: "'GET,POST,PUT,DELETE,OPTIONS'"
+        ResponseType: ACCESS_DENIED
+        RestApiId:
+          Ref: 'ApiGatewayRestApi'
+        StatusCode: '403'
