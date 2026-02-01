@@ -5,7 +5,12 @@ from auth_helper import get_bearer_token, validate_token_via_lambda
 
 dynamodb = boto3.resource('dynamodb')
 
-CORS_HEADERS = {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json"}
+CORS_HEADERS = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token",
+    "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
+    "Content-Type": "application/json"
+}
 
 def _resp(code, body):
     return {
