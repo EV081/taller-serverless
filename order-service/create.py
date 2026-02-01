@@ -8,7 +8,6 @@ from auth_helper import get_bearer_token, validate_token_via_lambda
 
 # Env vars
 TABLE_PRODUCTS = os.environ.get('TABLE_PRODUCTS')
-TABLE_HISTORIAL_ESTADOS = os.environ.get('TABLE_HISTORIAL_ESTADOS')
 
 def create_order(event, context):
     try:
@@ -99,23 +98,11 @@ def create_order(event, context):
         }
         table_orders.put_item(Item=item_order)
 
-        # 3. Log History
-        table_history = get_table(TABLE_HISTORIAL_ESTADOS)
-        history_timestamp = int(time.time() * 1000)  # milliseconds
-        estado_id = f"CREADO-{history_timestamp}"  # Unique estado_id
-        table_history.put_item(Item={
-            'pedido_id': order_id,      # PK - must match order table
-            'estado_id': estado_id,     # SK - sort key (required by table schema)
-            'timestamp': history_timestamp,
-            'status': 'CREADO',
-            'fecha': iso_time
-        })
-
-        # 4. Start Workflow
+        # 3. Start Workflow
         sf_input = json.dumps({
             "order_id": order_id,
             "local_id": local_id, # Pass to SF for callbacks
-            "items": items_internal  # Fixed: use items_internal instead of undefined 'items'
+            "items": items_internal
         })
         
         stepfunctions.start_execution(
