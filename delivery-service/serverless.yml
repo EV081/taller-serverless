@@ -28,7 +28,15 @@ functions:
       - http:
           path: delivery/disponibles
           method: get
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+            allowCredentials: false
 
   listDeliveryMyOrders:
     handler: list.list_my_orders
@@ -36,7 +44,15 @@ functions:
       - http:
           path: delivery/mis-pedidos
           method: get
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+            allowCredentials: false
 
   takeOrder:
     handler: take.take
@@ -44,7 +60,15 @@ functions:
       - http:
           path: delivery/tomar
           method: post
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+            allowCredentials: false
 
   completeDelivery:
     handler: complete.complete
@@ -52,4 +76,12 @@ functions:
       - http:
           path: delivery/entregar
           method: post
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+            allowCredentials: false
