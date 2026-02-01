@@ -4,25 +4,32 @@ import boto3
 
 dynamodb = boto3.resource('dynamodb')
 
+CORS_HEADERS = {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json"}
+
+def _resp(code, body):
+    return {
+        "statusCode": code,
+        "headers": CORS_HEADERS,
+        "body": json.dumps(body, ensure_ascii=False, default=str)
+    }
+
 def handler(event, context):
     """
-    Lista todos los pedidos (para staff: cocinero, repartidor, gerente).
+    Lista todos los pedidos (para staff: cocinero, repartidor).
     RBAC: Verifica rol en authorizer context.
     """
     table_name = os.environ.get('TABLE_ORDERS')
     table = dynamodb.Table(table_name)
     
-    # Verificar Rol
-    authorizer_context = event.get('requestContext', {}).get('authorizer', {}).get('lambda', {})
+    # Verificar Rol - Fix authorizer context path
+    authorizer_context = event.get('requestContext', {}).get('authorizer', {})
     role = authorizer_context.get('role', '').lower()
     
-    allowed_roles = ['cocina', 'cocinero', 'repartidor', 'delivery', 'gerente']
+    # Only Cocinero and Repartidor can see all orders
+    allowed_roles = ['cocinero', 'repartidor']
     
     if role not in allowed_roles:
-         return {
-            'statusCode': 403, 
-            'body': json.dumps({'error': f'Acceso denegado: Rol {role} no autorizado para ver todos los pedidos'})
-        }
+         return _resp(403, {'error': f'Acceso denegado: se requiere rol Cocinero o Repartidor'})
     
     try:
         limit = int(event.get('queryStringParameters', {}).get('limit', 20))

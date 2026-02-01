@@ -3,11 +3,23 @@ import uuid
 import time
 import os
 from common import response, get_table, TABLE_ORDERS, stepfunctions
+from auth_helper import get_bearer_token, validate_token_via_lambda
 
 TABLE_HISTORIAL_ESTADOS = os.environ.get('TABLE_HISTORIAL_ESTADOS')
 
 def complete(event, context):
     try:
+        # Validate token and role - require Cocinero role
+        token = get_bearer_token(event)
+        valido, error, rol = validate_token_via_lambda(token)
+        
+        if not valido:
+            return response(403, {"message": error or "Token inválido"})
+        
+        # Require Cocinero role
+        if rol not in ("Cocinero", "Admin"):
+            return response(403, {"message": "Permiso denegado: se requiere rol Cocinero"})
+        
         body = json.loads(event.get('body', '{}'))
         order_id = body.get('order_id')
         

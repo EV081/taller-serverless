@@ -2,11 +2,19 @@ import json
 import os
 import boto3
 from common import response, get_table
+from auth_helper import get_bearer_token, validate_token_via_lambda
 
 TABLE_ORDERS = os.environ.get('TABLE_ORDERS')
 
 def handler(event, context):
     try:
+        # Validate token (any authenticated user can check status)
+        token = get_bearer_token(event)
+        valido, error, rol = validate_token_via_lambda(token)
+        
+        if not valido:
+            return response(403, {"message": error or "Token inválido"})
+        
         # Expect query parameters
         qs = event.get('queryStringParameters', {})
         local_id = qs.get('local_id')

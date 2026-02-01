@@ -12,6 +12,7 @@ provider:
   environment:
     TABLE_ORDERS: ${env:TABLE_PEDIDOS}
     TABLE_HISTORIAL_ESTADOS: ${env:TABLE_HISTORIAL_ESTADOS}
+    VALIDAR_TOKEN_LAMBDA_NAME: burger-auth-${sls:stage}-auth
   iam:
     role: arn:aws:iam::${env:AWS_ACCOUNT_ID}:role/LabRole
 

@@ -4,6 +4,7 @@ import time
 import os
 import boto3
 from common import response, get_table, TABLE_ORDERS, STATE_MACHINE_ARN, stepfunctions
+from auth_helper import get_bearer_token, validate_token_via_lambda
 
 # Env vars
 TABLE_PRODUCTS = os.environ.get('TABLE_PRODUCTS')
@@ -11,6 +12,17 @@ TABLE_HISTORIAL_ESTADOS = os.environ.get('TABLE_HISTORIAL_ESTADOS')
 
 def create_order(event, context):
     try:
+        # Validate token and role - require Usuario role
+        token = get_bearer_token(event)
+        valido, error, rol = validate_token_via_lambda(token)
+        
+        if not valido:
+            return response(403, {"message": error or "Token inválido"})
+        
+        # Require Usuario role for creating orders
+        if rol not in ("Usuario", "Admin"):
+            return response(403, {"message": "Permiso denegado: solo usuarios pueden crear pedidos"})
+        
         user_context = event.get('requestContext', {}).get('authorizer', {})
         # Note: 'username' might come from principalId or context depending on Authorizer
         # Our authorizer returns context with username.
