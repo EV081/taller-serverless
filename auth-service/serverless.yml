@@ -13,6 +13,7 @@ provider:
     TABLE_USERS: ${env:TABLE_USUARIOS}
     TOKENS_TABLE_USERS: ${env:TABLE_TOKENS_USUARIOS}
     TABLE_EMPLEADOS: ${env:TABLE_EMPLEADOS}
+    TABLE_ORDERS: ${env:TABLE_PEDIDOS}
   iam:
     role: arn:aws:iam::${env:AWS_ACCOUNT_ID}:role/LabRole
 
