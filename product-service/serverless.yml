@@ -31,8 +31,8 @@ functions:
     handler: handlers/get_product.handler
     events:
       - http:
-          path: productos/id
-          method: get
+          path: productos/detalle
+          method: post
           cors: true
 
   createProduct:
@@ -42,7 +42,7 @@ functions:
           path: productos
           method: post
           cors: true
-          # En un scenario real, aquí iría el Authorizer ID validando rol 'gerente'
+          # Public endpoint
   
   updateProduct:
     handler: handlers/update_product.handler
