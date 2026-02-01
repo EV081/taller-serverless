@@ -1,7 +1,7 @@
 import json
 import os
 import boto3
-from boto3.dynamodb.conditions import Key
+from boto3.dynamodb.conditions import Attr
 
 dynamodb = boto3.resource('dynamodb')
 
@@ -31,13 +31,14 @@ def handler(event, context):
         return _resp(401, {'error': 'No autorizado'})
         
     try:
-        # Obtener parámetros de paginación
-        limit = int(event.get('queryStringParameters', {}).get('limit', 10))
-        last_key = event.get('queryStringParameters', {}).get('lastKey')
+        # Obtener parámetros de paginación - handle None queryStringParameters
+        query_params = event.get('queryStringParameters') or {}
+        limit = int(query_params.get('limit', 10))
+        last_key = query_params.get('lastKey')
         
-        # Scan with filter by user_id
+        # Scan with filter by user_id - use Attr() for FilterExpression
         scan_kwargs = {
-            'FilterExpression': Key('correo').eq(user_id) | Key('user_id').eq(user_id),
+            'FilterExpression': Attr('correo').eq(user_id) | Attr('user_id').eq(user_id),
             'Limit': limit
         }
         
