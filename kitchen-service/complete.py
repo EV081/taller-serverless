@@ -22,9 +22,11 @@ def complete(event, context):
         
         body = json.loads(event.get('body', '{}'))
         order_id = body.get('order_id')
+        local_id = body.get('local_id', 'BURGER-LOCAL-001')
         
         table = get_table(TABLE_ORDERS)
-        item_resp = table.get_item(Key={'order_id': order_id})
+        # Use composite key: local_id (PK) and pedido_id (SK)
+        item_resp = table.get_item(Key={'local_id': local_id, 'pedido_id': order_id})
         item = item_resp.get('Item')
         
         if not item:
@@ -40,11 +42,12 @@ def complete(event, context):
         # Log History
         table_history = get_table(TABLE_HISTORIAL_ESTADOS)
         iso_time = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime())
+        history_timestamp = int(time.time() * 1000)
         table_history.put_item(Item={
-            'history_id': str(uuid.uuid4()),
-            'order_id': order_id,
+            'pedido_id': order_id,
+            'timestamp': history_timestamp,
             'status': 'LISTO_PARA_ENTREGA',
-            'timestamp': iso_time
+            'fecha': iso_time
         })
 
         stepfunctions.send_task_success(
