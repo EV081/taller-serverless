@@ -30,7 +30,7 @@ functions:
   startExecution:
     handler: handlers/start_execution.handler
     environment:
-      STATE_MACHINE_ARN: arn:aws:states:us-east-1:${env:AWS_ACCOUNT_ID}:stateMachine:BurgerFlow-dev
+      STATE_MACHINE_ARN: ${env:STATE_MACHINE_ARN}
     events:
       - eventBridge:
           pattern:
@@ -61,7 +61,7 @@ functions:
   responderCallback:
     handler: handlers/responder_callback.handler
     environment:
-      STATE_MACHINE_ARN: arn:aws:states:us-east-1:${env:AWS_ACCOUNT_ID}:stateMachine:BurgerFlow-dev
+      STATE_MACHINE_ARN: ${env:STATE_MACHINE_ARN}
     events:
       - httpApi:
           path: /callback/responder

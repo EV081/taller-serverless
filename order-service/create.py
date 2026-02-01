@@ -8,7 +8,6 @@ from auth_helper import get_bearer_token, validate_token_via_lambda
 
 # Env vars
 TABLE_PRODUCTS = os.environ.get('TABLE_PRODUCTS')
-TABLE_HISTORIAL_ESTADOS = os.environ.get('TABLE_HISTORIAL_ESTADOS')
 
 def create_order(event, context):
     try:
@@ -99,28 +98,24 @@ def create_order(event, context):
         }
         table_orders.put_item(Item=item_order)
 
-        # 3. Log History
-        table_history = get_table(TABLE_HISTORIAL_ESTADOS)
-        history_timestamp = int(time.time() * 1000)  # milliseconds for sort key
-        table_history.put_item(Item={
-            'pedido_id': order_id,      # PK - must match order table
-            'timestamp': history_timestamp,  # SK - sort key
-            'status': 'CREADO',
-            'fecha': iso_time
-        })
-
-        # 4. Start Workflow
-        sf_input = json.dumps({
-            "order_id": order_id,
-            "local_id": local_id, # Pass to SF for callbacks
-            "items": items_internal  # Fixed: use items_internal instead of undefined 'items'
-        })
-        
-        stepfunctions.start_execution(
-            stateMachineArn=STATE_MACHINE_ARN,
-            name=order_id,
-            input=sf_input
-        )
+        # 3. Start Workflow (optional - only if Step Function exists)
+        try:
+            sf_input = json.dumps({
+                "order_id": order_id,
+                "local_id": local_id,
+                "items": items_internal
+            })
+            
+            stepfunctions.start_execution(
+                stateMachineArn=STATE_MACHINE_ARN,
+                name=order_id,
+                input=sf_input
+            )
+            print(f"Workflow started for order {order_id}")
+        except Exception as sf_error:
+            # Log the error but don't fail the order creation
+            print(f"Warning: Could not start workflow for order {order_id}: {sf_error}")
+            # Order is still created successfully even if workflow fails
 
         return response(201, {"message": "Pedido creado", "order_id": order_id})
 
