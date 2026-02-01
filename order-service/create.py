@@ -10,6 +10,11 @@ from auth_helper import get_bearer_token, validate_token_via_lambda
 TABLE_PRODUCTS = os.environ.get('TABLE_PRODUCTS')
 
 def create_order(event, context):
+    # Handle OPTIONS preflight request
+    method = event.get("httpMethod") or event.get("requestContext", {}).get("http", {}).get("method")
+    if method == "OPTIONS":
+        return response(200, {"message": "OK"})
+    
     try:
         # Validate token and role - require Cliente role
         token = get_bearer_token(event)
