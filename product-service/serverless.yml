@@ -1,61 +1,56 @@
 service: burger-products
 
-frameworkVersion: '4'
-
 provider:
   name: aws
-  runtime: python3.10
+  runtime: python3.10  # Switched to 3.10 for safety, 3.13 not standard in AWS yet
   region: us-east-1
-  stage: ${opt:stage, 'dev'}
+  stage: ${opt:stage, 'dev'} 
   memorySize: 256
-  timeout: 10
-  environment:
-    TABLE_PRODUCTS: ${env:TABLE_PRODUCTOS}
+  timeout: 20
   iam:
     role: arn:aws:iam::${env:AWS_ACCOUNT_ID}:role/LabRole
-
-custom:
-  pythonRequirements:
-    fileName: ../requirements.txt
+  environment:
+    TOKENS_TABLE_USERS: ${env:TABLE_TOKENS_USUARIOS}
+    PRODUCTS_TABLE: ${env:TABLE_PRODUCTOS}
+    PRODUCTS_BUCKET: ${env:S3_BUCKET_NAME}
+    VALIDAR_TOKEN_LAMBDA_NAME: burger-auth-${sls:stage}-auth
+  # layers:
+  #   - ${cf:millas-dependencias-dev.PythonDependenciesLayerExport}  
+  httpApi:
+    cors: true
 
 functions:
-  listProducts:
-    handler: handlers/list_products.handler
+  CreateProduct:
+    handler: product_create.lambda_handler
     events:
-      - http:
-          path: productos
-          method: get
-          cors: true
-  
-  getProduct:
-    handler: handlers/get_product.handler
+      - httpApi:
+          method: POST
+          path: /productos/create
+    
+  UpdateProduct: 
+    handler: product_update.lambda_handler
     events:
-      - http:
-          path: productos/detalle
-          method: post
-          cors: true
+      - httpApi:
+          method: PUT
+          path: /productos/update
 
-  createProduct:
-    handler: handlers/create_product.handler
+  DeleteProduct:
+    handler: product_delete.lambda_handler
     events:
-      - http:
-          path: productos
-          method: post
-          cors: true
-          # Public endpoint
-  
-  updateProduct:
-    handler: handlers/update_product.handler
-    events:
-      - http:
-          path: productos/{id}
-          method: put
-          cors: true
+      - httpApi:
+          method: DELETE
+          path: /productos/delete
 
-  deleteProduct:
-    handler: handlers/delete_product.handler
+  ProductID:
+    handler: product_id.lambda_handler
     events:
-      - http:
-          path: productos
-          method: delete
-          cors: true
+      - httpApi:
+          method: POST 
+          path: /productos/id
+
+  ListProduct:
+    handler: product_list.lambda_handler
+    events:
+      - httpApi:
+          method: POST
+          path: /productos/list

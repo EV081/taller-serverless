@@ -15,6 +15,7 @@ provider:
     TABLE_PRODUCTS: ${env:TABLE_PRODUCTOS}
     TABLE_HISTORIAL_ESTADOS: ${env:TABLE_HISTORIAL_ESTADOS}
     STATE_MACHINE_ARN: arn:aws:states:${aws:region}:${aws:accountId}:stateMachine:BurgerFlow-${sls:stage}
+    VALIDAR_TOKEN_LAMBDA_NAME: burger-auth-${sls:stage}-auth
   iam:
     role: arn:aws:iam::${env:AWS_ACCOUNT_ID}:role/LabRole
 
