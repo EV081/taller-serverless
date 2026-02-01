@@ -36,9 +36,21 @@ def complete(event, context):
         if not token:
             return response(400, {"error": "No hay token activo"})
 
+        # Update Order Status directly to ensure immediate consistency
+        iso_time = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime())
+        
+        table.update_item(
+            Key={'local_id': local_id, 'pedido_id': order_id},
+            UpdateExpression="set #s = :status, updated_at = :t",
+            ExpressionAttributeNames={'#s': 'status'},
+            ExpressionAttributeValues={
+                ':status': 'ENTREGADO',
+                ':t': iso_time
+            }
+        )
+
         # Log History
         table_history = get_table(TABLE_HISTORIAL_ESTADOS)
-        iso_time = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime())
         estado_id = str(uuid.uuid4())
         table_history.put_item(Item={
             'pedido_id': order_id,
