@@ -65,14 +65,19 @@ def create_order(event, context):
         order_id = str(uuid.uuid4())
         timestamp = int(time.time())
         iso_time = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(timestamp))
+        
+        # FIXED: Use consistent LOCAL_ID matching DataGenerator
+        local_id = "BURGER-LOCAL-001"
 
         table_orders = get_table(TABLE_ORDERS)
         item_order = {
-            'order_id': order_id,
-            'user_id': username,
+            'local_id': local_id,      # PK
+            'pedido_id': order_id,     # SK
+            'correo': username,        # GSI Key (Important for list_my_orders)
+            'user_id': username,       # Legacy/Backup
             'status': 'CREADO',
             'items': items,
-            'total_price': str(total_price), # Decimal support
+            'total_price': str(total_price), 
             'created_at': iso_time,
             'updated_at': iso_time
         }
@@ -83,7 +88,7 @@ def create_order(event, context):
         history_id = str(uuid.uuid4())
         table_history.put_item(Item={
             'history_id': history_id,
-            'order_id': order_id,
+            'order_id': order_id, # This table uses order_id as PK, so this is fine if schema matches
             'status': 'CREADO',
             'timestamp': iso_time
         })
@@ -91,6 +96,7 @@ def create_order(event, context):
         # 4. Start Workflow
         sf_input = json.dumps({
             "order_id": order_id,
+            "local_id": local_id, # Pass to SF for callbacks
             "items": items
         })
         
