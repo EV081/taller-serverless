@@ -10,14 +10,16 @@ TOKENS_TABLE_USERS = os.environ.get("TOKENS_TABLE_USERS")
 def login(event, context):
     try:
         body = json.loads(event.get('body', '{}'))
-        username = body.get('username')
+        # Accept email or username, treat as email/PK
+        email = body.get('email') or body.get('username') 
         password = body.get('password')
 
-        if not username or not password:
-            return response(400, {"error": "Faltan credenciales"})
+        if not email or not password:
+            return response(400, {"error": "Faltan credenciales (email y password)"})
 
         table = get_table(TABLE_USERS)
-        result = table.get_item(Key={'username': username})
+        # Schema uses 'correo' as PK
+        result = table.get_item(Key={'correo': email})
         
         user = result.get('Item')
         
