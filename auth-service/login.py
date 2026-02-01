@@ -11,8 +11,8 @@ def login(event, context):
     try:
         body = json.loads(event.get('body', '{}'))
         # Accept email or username, treat as email/PK
-        email = body.get('email') or body.get('username') 
-        password = body.get('password')
+        email = body.get('correo') 
+        password = body.get('contrasena')
 
         if not email or not password:
             return response(400, {"error": "Faltan credenciales (email y password)"})
@@ -24,17 +24,17 @@ def login(event, context):
         user = result.get('Item')
         
         if not user:
-            return response(401, {"error": "Credenciales inválidas"})
+            return response(401, {"error": "Credenciales inválidas (Usuario no encontrado)"})
 
         # Validate password (check hash)
-        # Assuming database stores HASHED password in 'password' field as per my register.py
-        stored_password = user.get('password')
+        # Check 'password' (new standard) or 'contrasena' (legacy/datagen)
+        stored_password = user.get('password') or user.get('contrasena')
         input_hash = hash_password(password)
         
         if stored_password != input_hash:
-             # Fallback for legacy plain text passwords if any exist (optional but good for transition)
+             # Fallback for plain text passwords (like from DataGenerator without hashing)
             if stored_password != password:
-                return response(401, {"error": "Credenciales inválidas"})
+                return response(401, {"error": "Credenciales inválidas (Password incorrecto)"})
 
         # Generate Token
         token = str(uuid.uuid4())
@@ -45,7 +45,7 @@ def login(event, context):
         # Store Token in DynamoDB
         token_record = {
             'token': token,
-            'user_id': username,
+            'user_id': email, # FIXED: using email from input
             'rol': role,
             'expires': expires_str
         }
