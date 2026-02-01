@@ -47,7 +47,7 @@ def take(event, context):
             'timestamp': iso_time
         })
 
-        stepfunctions.send_task_success(taskToken=token, output=json.dumps({"status": "PICKED_UP"}))
+        stepfunctions.send_task_success(taskToken=token, output=json.dumps({"decision": "ACEPTAR", "status": "PICKED_UP"}))
         return response(200, {"message": "Pedido tomado"})
     except Exception as e:
         return response(500, {"error": str(e)})
