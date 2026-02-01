@@ -1,8 +1,8 @@
 {
     "info": {
-        "_postman_id": "burger-cloud-taller-full",
-        "name": "Burger Cloud - Taller Serverless (Completo)",
-        "description": "Colección completa para el taller Serverless que incluye Autenticación, Productos, Pedidos y Workflow con RBAC.",
+        "_postman_id": "burger-cloud-taller-v2",
+        "name": "Burger Cloud - Taller Serverless (v2 - Updated)",
+        "description": "Colección actualizada con nuevos endpoints de Pedidos y Productos.",
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
     },
     "item": [
@@ -53,7 +53,7 @@
                         "header": [],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"email\": \"cliente@test.com\",\n    \"password\": \"123456\"\n}",
+                            "raw": "{\n    \"correo\": \"cliente@test.com\",\n    \"contrasena\": \"123456\"\n}",
                             "options": {
                                 "raw": {
                                     "language": "json"
@@ -72,7 +72,7 @@
                     }
                 },
                 {
-                    "name": "Login (Cocinero)",
+                    "name": "Login (Empleado)",
                     "event": [
                         {
                             "listen": "test",
@@ -90,7 +90,7 @@
                         "header": [],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"email\": \"cocina@burger.com\",\n    \"password\": \"123456\"\n}",
+                            "raw": "{\n    \"correo\": \"cocina@burger.com\",\n    \"contrasena\": \"123456\"\n}",
                             "options": {
                                 "raw": {
                                     "language": "json"
@@ -98,49 +98,13 @@
                             }
                         },
                         "url": {
-                            "raw": "{{api_url}}/login",
+                            "raw": "{{api_url}}/login/empleado",
                             "host": [
                                 "{{api_url}}"
                             ],
                             "path": [
-                                "login"
-                            ]
-                        }
-                    }
-                },
-                {
-                    "name": "Login (Repartidor)",
-                    "event": [
-                        {
-                            "listen": "test",
-                            "script": {
-                                "exec": [
-                                    "var jsonData = pm.response.json();",
-                                    "pm.environment.set(\"token_delivery\", jsonData.token);"
-                                ],
-                                "type": "text/javascript"
-                            }
-                        }
-                    ],
-                    "request": {
-                        "method": "POST",
-                        "header": [],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"email\": \"delivery@burger.com\",\n    \"password\": \"123456\"\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{api_url}}/login",
-                            "host": [
-                                "{{api_url}}"
-                            ],
-                            "path": [
-                                "login"
+                                "login",
+                                "empleado"
                             ]
                         }
                     }
@@ -148,10 +112,10 @@
             ]
         },
         {
-            "name": "2. Productos (CRUD)",
+            "name": "2. Productos",
             "item": [
                 {
-                    "name": "Listar Productos (Público)",
+                    "name": "Listar Productos",
                     "request": {
                         "method": "GET",
                         "header": [],
@@ -173,13 +137,39 @@
                     }
                 },
                 {
-                    "name": "Crear Producto (Admin)",
+                    "name": "Obtener Producto (Body)",
                     "request": {
                         "method": "POST",
                         "header": [],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"local_id\": \"local_001\",\n    \"nombre\": \"Hamburguesa Royal\",\n    \"precio\": 25.50,\n    \"stock\": 100\n}",
+                            "raw": "{\n  \"local_id\": \"BURGER-LOCAL-001\",\n  \"producto_id\": \"PRODUCT_UUID_HERE\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{api_url}}/productos/detalle",
+                            "host": [
+                                "{{api_url}}"
+                            ],
+                            "path": [
+                                "productos",
+                                "detalle"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Eliminar Producto (Body)",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"local_id\": \"BURGER-LOCAL-001\",\n  \"producto_id\": \"PRODUCT_UUID_HERE\"\n}",
                             "options": {
                                 "raw": {
                                     "language": "json"
@@ -196,29 +186,6 @@
                             ]
                         }
                     }
-                },
-                {
-                    "name": "Obtener Producto",
-                    "request": {
-                        "method": "GET",
-                        "header": [],
-                        "url": {
-                            "raw": "{{api_url}}/productos/prod-xxxx?local_id=local_001",
-                            "host": [
-                                "{{api_url}}"
-                            ],
-                            "path": [
-                                "productos",
-                                "prod-xxxx"
-                            ],
-                            "query": [
-                                {
-                                    "key": "local_id",
-                                    "value": "local_001"
-                                }
-                            ]
-                        }
-                    }
                 }
             ]
         },
@@ -226,7 +193,7 @@
             "name": "3. Pedidos",
             "item": [
                 {
-                    "name": "Crear Pedido (Trigger Workflow)",
+                    "name": "Crear Pedido",
                     "request": {
                         "method": "POST",
                         "header": [
@@ -238,7 +205,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"source\": \"burger.pedidos\",\n    \"detailType\": \"CrearPedido\",\n    \"detail\": {\n        \"order_id\": \"pedido-{{$randomInt}}\",\n        \"local_id\": \"local_001\",\n        \"user_id\": \"cliente@test.com\",\n        \"products\": [\n            {\"id\": \"hamburguesa_clasica\", \"quantity\": 2}\n        ]\n    }\n}",
+                            "raw": "{\n  \"local_id\": \"BURGER-LOCAL-001\",\n  \"productos\": [\n    {\n      \"producto_id\": \"PRODUCT_UUID_HERE\",\n      \"cantidad\": 2\n    }\n  ],\n  \"costo\": 125.50,\n  \"direccion\": \"Av. Principal 123, Lima\",\n  \"estado\": \"procesando\"\n}",
                             "options": {
                                 "raw": {
                                     "language": "json"
@@ -246,19 +213,45 @@
                             }
                         },
                         "url": {
-                            "raw": "{{api_url}}/eventos/trigger",
+                            "raw": "{{api_url}}/pedido",
                             "host": [
                                 "{{api_url}}"
                             ],
                             "path": [
-                                "eventos",
-                                "trigger"
+                                "pedido"
                             ]
                         }
                     }
                 },
                 {
-                    "name": "Mis Pedidos (Cliente)",
+                    "name": "Estado Pedido",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{api_url}}/pedido/status?local_id=BURGER-LOCAL-001&pedido_id=PEDIDO_UUID_HERE",
+                            "host": [
+                                "{{api_url}}"
+                            ],
+                            "path": [
+                                "pedido",
+                                "status"
+                            ],
+                            "query": [
+                                {
+                                    "key": "local_id",
+                                    "value": "BURGER-LOCAL-001"
+                                },
+                                {
+                                    "key": "pedido_id",
+                                    "value": "PEDIDO_UUID_HERE"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Historial Pedidos (Cliente)",
                     "request": {
                         "method": "GET",
                         "header": [
@@ -269,117 +262,13 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{api_url}}/pedidos/mis-pedidos?limit=5",
+                            "raw": "{{api_url}}/pedido/historial",
                             "host": [
                                 "{{api_url}}"
                             ],
                             "path": [
-                                "pedidos",
-                                "mis-pedidos"
-                            ],
-                            "query": [
-                                {
-                                    "key": "limit",
-                                    "value": "5"
-                                }
-                            ]
-                        }
-                    }
-                },
-                {
-                    "name": "Todos los Pedidos (Staff)",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token_cocina}}",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{api_url}}/pedidos/todos?limit=20",
-                            "host": [
-                                "{{api_url}}"
-                            ],
-                            "path": [
-                                "pedidos",
-                                "todos"
-                            ],
-                            "query": [
-                                {
-                                    "key": "limit",
-                                    "value": "20"
-                                }
-                            ]
-                        }
-                    }
-                }
-            ]
-        },
-        {
-            "name": "4. Workflow (Cocina & Delivery)",
-            "item": [
-                {
-                    "name": "Cocina: Aceptar Pedido",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token_cocina}}",
-                                "type": "text"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"taskToken\": \"{{task_token}}\",\n    \"decision\": \"ACEPTAR\",\n    \"stage\": \"cocina\"\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{api_url}}/callback/responder",
-                            "host": [
-                                "{{api_url}}"
-                            ],
-                            "path": [
-                                "callback",
-                                "responder"
-                            ]
-                        }
-                    }
-                },
-                {
-                    "name": "Delivery: Aceptar Entrega",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Authorization",
-                                "value": "Bearer {{token_delivery}}",
-                                "type": "text"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"taskToken\": \"{{task_token}}\",\n    \"decision\": \"ACEPTAR\",\n    \"stage\": \"delivery\"\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{api_url}}/callback/responder",
-                            "host": [
-                                "{{api_url}}"
-                            ],
-                            "path": [
-                                "callback",
-                                "responder"
+                                "pedido",
+                                "historial"
                             ]
                         }
                     }
@@ -391,11 +280,6 @@
         {
             "key": "api_url",
             "value": "https://REEMPLAZAR_CON_TU_API_URL.execute-api.us-east-1.amazonaws.com",
-            "type": "string"
-        },
-        {
-            "key": "task_token",
-            "value": "PEGAR_TASK_TOKEN_AQUI",
             "type": "string"
         }
     ]
