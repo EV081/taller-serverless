@@ -45,7 +45,7 @@ functions:
             allowCredentials: false
 
   listMyOrders:
-    handler: handlers/list_my_orders.handler
+    handler: list_my_orders.handler
     events:
       - http:
           path: pedidos/mis-pedidos
@@ -64,7 +64,7 @@ functions:
             allowCredentials: false
 
   listAllOrders:
-    handler: handlers/list_all_orders.handler
+    handler: list_all_orders.handler
     events:
       - http:
           path: pedidos/todos
@@ -83,7 +83,7 @@ functions:
             allowCredentials: false
 
   checkStatus:
-    handler: handlers/get_status.handler
+    handler: get_status.handler
     events:
       - http:
           path: pedido/status
@@ -99,7 +99,7 @@ functions:
             allowCredentials: false
 
   orderHistory:
-    handler: handlers/list_my_orders.handler # Reusing listMyOrders as per requirement
+    handler: list_my_orders.handler # Reusing listMyOrders as per requirement
     events:
       - http:
           path: pedido/historial
