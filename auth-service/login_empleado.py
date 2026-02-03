@@ -36,7 +36,6 @@ def login_empleado(event, context):
         input_hash = hash_password(password)
         
         if stored_password != input_hash:
-             # Fallback for plain text
             if stored_password != password:
                 return response(401, {"error": "Credenciales inválidas (Password incorrecto)"})
 

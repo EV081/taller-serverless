@@ -12,7 +12,6 @@ def authorize(event, context):
         if not token:
             return generate_policy('user', 'Deny', event['methodArn'])
 
-        # Remove Bearer prefix if present
         if token.lower().startswith('bearer '):
             token = token[7:]
 
@@ -35,14 +34,12 @@ def authorize(event, context):
                     print("Token expired")
                     return generate_policy('user', 'Deny', event['methodArn'])
             except ValueError:
-                # Handle possible format issues or skip if format doesn't match
                 pass
         
         # Valid token
         user = item.get('user_id')
         role = item.get('rol')
         
-        # Return Allow policy
         return generate_policy(user, 'Allow', event['methodArn'], context={'role': role, 'username': user})
 
     except Exception as e:

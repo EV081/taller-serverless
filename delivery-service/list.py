@@ -10,8 +10,6 @@ def _scan_by_status(status, limit=20, start_key=None):
     return response_dynamo.get('Items', []), response_dynamo.get('LastEvaluatedKey')
 
 def list_ready(event, context):
-    """Lista pedidos listos para recoger."""
-    # Validate token and role - require Repartidor role
     token = get_bearer_token(event)
     valido, error, rol = validate_token_via_lambda(token)
     
@@ -26,7 +24,6 @@ def list_ready(event, context):
     return response(200, {"orders": items, "next_key": last_key})
 
 def list_my_orders(event, context):
-    """Lista pedidos asignados al repartidor."""
     # Validate token and role - require Repartidor role
     token = get_bearer_token(event)
     valido, error, rol = validate_token_via_lambda(token)

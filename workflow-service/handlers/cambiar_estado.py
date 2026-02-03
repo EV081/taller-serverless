@@ -1,7 +1,3 @@
-"""
-Lambda handler para cambiar el estado del pedido
-Triggereado por EventBridge cuando cocina/delivery cambian estados
-"""
 import json
 import os
 import boto3
@@ -11,22 +7,6 @@ import uuid
 dynamodb = boto3.resource('dynamodb')
 
 def handler(event, context):
-    """
-    Registra cambios de estado en la tabla Burger-Historial-Estados
-    
-    Event format (EventBridge):
-    {
-        "source": "burger.cocina" | "burger.delivery" | "burger.cliente",
-        "detail-type": "EnPreparacion" | "CocinaCompleta" | "Empaquetado" | "EnCamino" | "Entregado" | "ConfirmarPedido",
-        "detail": {
-            "pedido_id": "UUID",
-            "local_id": "local_001",
-            "estado_nuevo": "COCINANDO",
-            "empleado_correo": "cocinero@burger.com",
-            "notas": "..."
-        }
-    }
-    """
     print(f"Evento recibido: {json.dumps(event)}")
     
     try:
@@ -64,7 +44,7 @@ def handler(event, context):
         # Insertar en DynamoDB
         table.put_item(Item=item)
         
-        print(f"✅ Estado registrado: {pedido_id} -> {estado_nuevo}")
+        print(f"Estado registrado: {pedido_id} -> {estado_nuevo}")
         
         return {
             'statusCode': 200,
@@ -77,7 +57,7 @@ def handler(event, context):
         }
         
     except Exception as e:
-        print(f"❌ Error al registrar estado: {str(e)}")
+        print(f"Error al registrar estado: {str(e)}")
         return {
             'statusCode': 500,
             'body': json.dumps({

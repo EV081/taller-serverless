@@ -20,7 +20,6 @@ def _scan_by_status(status, limit=20, start_key=None):
     return items, last_key
 
 def list_pending(event, context):
-    """Lista pedidos pendientes de confirmación por cocina."""
     # Validate token and role - require Cocinero role
     token = get_bearer_token(event)
     valido, error, rol = validate_token_via_lambda(token)
@@ -36,7 +35,6 @@ def list_pending(event, context):
     return response(200, {"orders": items, "next_key": last_key})
 
 def list_cooking(event, context):
-    """Lista pedidos en cocción."""
     # Validate token and role - require Cocinero role
     token = get_bearer_token(event)
     valido, error, rol = validate_token_via_lambda(token)

@@ -1,7 +1,3 @@
-"""
-Lambda handler para responder al Step Function con taskToken
-Endpoint HTTP para que cocina/delivery respondan con ACEPTAR o RECHAZADO
-"""
 import json
 import os
 import boto3
@@ -14,18 +10,6 @@ def get_table(table_name):
     return dynamodb.Table(table_name)
 
 def handler(event, context):
-    """
-    Resume la ejecución del Step Function enviando el resultado del callback
-    
-    HTTP Request (POST /callback/responder):
-    Headers: Authorization: Bearer <token>
-    Body:
-    {
-        "taskToken": "AQCEAAAAKgAAAAMAAA...",
-        "decision": "ACEPTAR" | "RECHAZADO",
-        "stage": "cocina" | "delivery"
-    }
-    """
     print(f"Request recibido: {json.dumps(event)}")
     
     try:
@@ -61,10 +45,6 @@ def handler(event, context):
         if decision not in ['ACEPTAR', 'RECHAZADO']:
             return {'statusCode': 400, 'body': json.dumps({'error': 'decision debe ser ACEPTAR o RECHAZADO'})}
 
-        # ------- 3. Autorización por Rol (RBAC) -------
-        # Reglas de negocio:
-        # - Cocina solo puede ser operada por 'cocinero' o 'gerente'
-        # - Delivery solo puede ser operado por 'repartidor' o 'gerente'
         
         authorized = False
         
@@ -75,14 +55,12 @@ def handler(event, context):
             if user_role in ['repartidor', 'delivery', 'gerente']:
                 authorized = True
         else:
-            # Si no envían stage, permitimos si tiene CUALQUIER rol válido de staff
-            # Pero advertimos que deberían enviar stage
-            print("⚠️ No se especificó 'stage', validación laxa de roles")
+            print("No se especificó 'stage', validación laxa de roles")
             if user_role in ['cocina', 'cocinero', 'repartidor', 'delivery', 'gerente']:
                 authorized = True
         
         if not authorized:
-            print(f"⛔ Acceso denegado. Rol '{user_role}' no tiene permiso para stage '{stage}'")
+            print(f"Acceso denegado. Rol '{user_role}' no tiene permiso para stage '{stage}'")
             return {
                 'statusCode': 403, 
                 'body': json.dumps({
@@ -104,7 +82,7 @@ def handler(event, context):
             output=json.dumps(output)
         )
         
-        print(f"✅ Callback enviado: decision={decision} por {user_role}")
+        print(f"Callback enviado: decision={decision} por {user_role}")
         
         return {
             'statusCode': 200,
@@ -124,5 +102,5 @@ def handler(event, context):
     except stepfunctions.exceptions.InvalidToken:
         return {'statusCode': 400, 'body': json.dumps({'error': 'Token de tarea inválido'})}
     except Exception as e:
-        print(f"❌ Error al procesar callback: {str(e)}")
+        print(f"Error al procesar callback: {str(e)}")
         return {'statusCode': 500, 'body': json.dumps({'error': str(e)})}

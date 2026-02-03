@@ -15,10 +15,6 @@ def _resp(code, body):
     }
 
 def handler(event, context):
-    """
-    Lista los pedidos del usuario autenticado.
-    Requiere Authorizer que inyecte el user_id o claims.
-    """
     table_name = os.environ.get('TABLE_ORDERS')
     table = dynamodb.Table(table_name)
     

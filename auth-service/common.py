@@ -1,6 +1,3 @@
-"""
-Utilidades comunes compartidas entre todos los servicios serverless.
-"""
 import json
 import os
 import decimal
@@ -9,11 +6,9 @@ import hashlib
 from typing import Any, Dict
 from datetime import datetime
 
-# Inicializar recursos AWS (reutilizables entre invocaciones)
 dynamodb = boto3.resource('dynamodb')
 stepfunctions = boto3.client('stepfunctions')
 
-# Variables de entorno comunes
 TABLE_USERS = os.environ.get('TABLE_USERS')
 TABLE_EMPLOYEES = os.environ.get('TABLE_EMPLOYEES')
 TABLE_LOCALS = os.environ.get('TABLE_LOCALS')
@@ -35,7 +30,6 @@ class DecimalEncoder(json.JSONEncoder):
 
 
 def response(status_code: int, body: Any) -> Dict:
-    """Genera una respuesta estándar para API Gateway."""
     return {
         "statusCode": status_code,
         "headers": {
@@ -50,20 +44,16 @@ def response(status_code: int, body: Any) -> Dict:
 
 
 def get_table(table_name: str):
-    """Obtiene una referencia a una tabla DynamoDB."""
     return dynamodb.Table(table_name)
 
 
 def hash_password(password: str) -> str:
-    """Hashea una contraseña usando SHA-256."""
     return hashlib.sha256(password.encode("utf-8")).hexdigest()
 
 
 def now_iso() -> str:
-    """Retorna la fecha/hora actual en formato ISO."""
     return datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
 
 
 def now_timestamp() -> int:
-    """Retorna timestamp Unix actual."""
     return int(datetime.utcnow().timestamp())
