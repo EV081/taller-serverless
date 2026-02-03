@@ -38,7 +38,7 @@ El proyecto está dividido en los siguientes microservicios:
 3. Esperar Confirmación Cocina [wait for task token]
    ↓
 4. ¿Cocina acepta?
-   ├─ NO → Reintentar (máx 3 intentos) → Fallo
+   ├─ NO → Pedido Fallido
    └─ SÍ → Continuar
        ↓
 5. En Preparación [wait for task token]
@@ -48,7 +48,7 @@ El proyecto está dividido en los siguientes microservicios:
 7. Esperar Delivery [wait for task token]
    ↓
 8. ¿Delivery acepta?
-   ├─ NO → Reintentar (máx 3 intentos) → Fallo
+   ├─ NO → Pedido Fallido
    └─ SÍ → Continuar
        ↓
 9. En Camino [wait for task token]
@@ -412,27 +412,24 @@ cd ..
 ### 1. Wait For Task Token
 Las Step Functions pausan la ejecución hasta recibir una respuesta externa mediante `SendTaskSuccess` o `SendTaskFailure`. Esto permite intervención humana en puntos críticos del flujo.
 
-### 2. Retry Logic
-Cada estado que requiere confirmación implementa lógica de reintentos (máximo 3) antes de marcar el pedido como fallido.
-
-### 3. Timeouts
+### 2. Timeouts
 - **Confirmación Cocina**: 15 minutos (900s)
 - **Preparación**: 15 minutos (900s)
 - **Asignación Delivery**: 30 minutos (1800s)
 - **En Camino**: 30 minutos (1800s)
 
-### 4. DynamoDB Patterns
+### 3. DynamoDB Patterns
 - Uso de claves compuestas (Partition Key + Sort Key)
 - Global Secondary Index (GSI) en Burger-Pedidos para consultar por usuario
 - TTL en Burger-Tokens-Usuarios para expiración automática de tokens
 
-### 5. EventBridge
+### 4. EventBridge
 Comunicación entre servicios mediante eventos personalizados:
 - `burger.pedidos`: Eventos de creación de pedidos
 - `burger.cocina`: Eventos de cocina
 - `burger.delivery`: Eventos de delivery
 
-### 6. Serverless Compose
+### 5. Serverless Compose
 Orquestación de despliegue con dependencias entre servicios:
 - `auth` debe desplegarse antes que servicios que usan autorización
 - `kitchen` debe desplegarse antes que `workflow` (por imports de ARNs)
