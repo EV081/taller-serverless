@@ -4,7 +4,7 @@ from common import get_table, TABLE_ORDERS
 def register_token(event, context):
     try:
         order_id = event.get('order_id')
-        local_id = event.get('local_id', 'BURGER-LOCAL-001') # Fallback if missing
+        local_id = event.get('local_id', 'BURGER-LOCAL-001')
         token = event.get('taskToken')
         stage = event.get('stage')
         

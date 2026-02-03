@@ -1,7 +1,3 @@
-"""
-Lambda handler para iniciar la ejecución del Step Function
-Triggereado por EventBridge cuando se recibe un evento CrearPedido
-"""
 import json
 import os
 import boto3
@@ -10,22 +6,6 @@ from datetime import datetime
 stepfunctions = boto3.client('stepfunctions')
 
 def handler(event, context):
-    """
-    Inicia la ejecución del Step Function BurgerFlow
-    
-    Event format (EventBridge):
-    {
-        "source": "burger.pedidos",
-        "detail-type": "CrearPedido",
-        "detail": {
-            "order_id": "UUID",
-            "local_id": "local_001",
-            "correo": "user@example.com",
-            "productos": [...],
-            ...
-        }
-    }
-    """
     print(f"Evento recibido: {json.dumps(event)}")
     
     try:
@@ -50,7 +30,7 @@ def handler(event, context):
             input=json.dumps(detail)
         )
         
-        print(f"✅ Step Function iniciado: {response['executionArn']}")
+        print(f"Step Function iniciado: {response['executionArn']}")
         
         return {
             'statusCode': 200,
@@ -62,7 +42,7 @@ def handler(event, context):
         }
         
     except Exception as e:
-        print(f"❌ Error al iniciar Step Function: {str(e)}")
+        print(f"Error al iniciar Step Function: {str(e)}")
         return {
             'statusCode': 500,
             'body': json.dumps({

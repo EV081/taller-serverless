@@ -14,10 +14,6 @@ def _resp(code, body):
     }
 
 def handler(event, context):
-    """
-    Lista todos los pedidos (para staff: cocinero, repartidor).
-    RBAC: Verifica rol en authorizer context.
-    """
     table_name = os.environ.get('TABLE_ORDERS')
     table = dynamodb.Table(table_name)
     

@@ -6,7 +6,6 @@ import boto3
 from datetime import datetime, timedelta
 from common import response, get_table, hash_password, TABLE_USERS
 
-# Environment variable for tokens table
 TOKENS_TABLE_USERS = os.environ.get("TOKENS_TABLE_USERS")
 
 ALLOWED_ROLES = {"Cliente", "Gerente", "Admin", "Cocinero", "Driver"}
@@ -19,7 +18,7 @@ def register_user(event, context):
         nombre = (body.get("nombre") or "").strip()
         correo_raw = (body.get("correo") or "").strip()
         contrasena = (body.get("contrasena") or "")
-        username = (body.get("username") or "").strip() # Support username if needed, but email is primary PK usually
+        username = (body.get("username") or "").strip()
         role = (body.get("role") or "Cliente").strip()
 
         correo = correo_raw.lower()
@@ -34,18 +33,15 @@ def register_user(event, context):
 
         table_users = get_table(TABLE_USERS)
         
-        # Check if user exists
-        # Schema uses 'correo' as PK
         res = table_users.get_item(Key={'correo': correo})
         if 'Item' in res:
             return response(400, {"error": "El usuario ya existe"})
 
-        # Register User
         hashed = hash_password(contrasena)
         
         new_user = {
-            'correo': correo, # PK
-            'username': target_username or correo, # Attribute
+            'correo': correo, 
+            'username': target_username or correo,
             'password': hashed, 
             'role': role,
             'nombre': nombre,
