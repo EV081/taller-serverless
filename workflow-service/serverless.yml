@@ -48,14 +48,11 @@ functions:
             source:
               - "burger.cocina"
               - "burger.delivery"
-              - "burger.cliente"
             detail-type:
               - "EnPreparacion"
               - "CocinaCompleta"
-              - "Empaquetado"
               - "EnCamino"
               - "Entregado"
-              - "ConfirmarPedido"
 
   # Endpoint HTTP para responder callbacks del Step Function
   responderCallback:
@@ -75,9 +72,3 @@ functions:
           path: /eventos/trigger
           method: POST
 
-# NOTA: Este servicio NO crea tablas DynamoDB.
-# Las tablas son creadas por data-setup/DataPoblator.py
-# Este servicio solo mantiene las referencias a las tablas en environment variables
-#
-# El Step Function (BurgerFlow-dev) se crea MANUALMENTE en AWS Console
-# usando el archivo step-function.json
