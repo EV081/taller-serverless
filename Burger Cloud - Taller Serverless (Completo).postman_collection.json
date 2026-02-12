@@ -1,0 +1,877 @@
+{
+	"info": {
+		"_postman_id": "c8e96011-769e-4ef9-b2a8-16265e8ed600",
+		"name": "Burger Cloud - Taller Serverless (Completo)",
+		"description": "Colección completa para el taller Serverless que incluye Autenticación, Productos, Pedidos y Workflow con RBAC.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "43507435",
+		"_collection_link": "https://bold-crescent-20177.postman.co/workspace/My-Workspace~3b0820c5-a856-4cb8-8910-b6780db52428/collection/43507435-c8e96011-769e-4ef9-b2a8-16265e8ed600?action=share&source=collection_link&creator=43507435"
+	},
+	"item": [
+		{
+			"name": "1. Autenticación",
+			"item": [
+				{
+					"name": "Registrar Usuario (Cliente)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"Cliente Test\",\n    \"correo\": \"cliente1@test.com\",\n    \"contrasena\": \"123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{user_url}}/register",
+							"host": [
+								"{{user_url}}"
+							],
+							"path": [
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login (Cliente)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Guardar token automáticamente",
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.token) {",
+									"        pm.collectionVariables.set(\"token_cliente\", jsonData.token);",
+									"        console.log(\"✅ Token guardado: \" + jsonData.token);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"correo\": \"cliente@test.com\",\n    \"contrasena\": \"123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{user_url}}/login",
+							"host": [
+								"{{user_url}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login (Cocinero)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Guardar token automáticamente",
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.token) {",
+									"        pm.collectionVariables.set(\"token_cocina\", jsonData.token);",
+									"        console.log(\"✅ Token guardado: \" + jsonData.token);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"correo\": \"cocina@burger.com\",\n    \"contrasena\": \"123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{user_url}}/login/empleado",
+							"host": [
+								"{{user_url}}"
+							],
+							"path": [
+								"login",
+								"empleado"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login (Repartidor)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Guardar token automáticamente",
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.token) {",
+									"        pm.collectionVariables.set(\"token_delivery\", jsonData.token);",
+									"        console.log(\"✅ Token guardado: \" + jsonData.token);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"correo\": \"delivery@burger.com\",\n    \"contrasena\": \"123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{user_url}}/login/empleado",
+							"host": [
+								"{{user_url}}"
+							],
+							"path": [
+								"login",
+								"empleado"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login (Gerente)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Guardar token automáticamente",
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.token) {",
+									"        pm.collectionVariables.set(\"token_gerente\", jsonData.token);",
+									"        console.log(\"✅ Token guardado: \" + jsonData.token);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"correo\": \"gerente@burger.com\",\n    \"contrasena\": \"123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{user_url}}/login",
+							"host": [
+								"{{user_url}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2. Products (Productos) Copy",
+			"item": [
+				{
+					"name": "List Products (PUBLIC)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"limit\": 20\n}"
+						},
+						"url": {
+							"raw": "{{producto_url}}/productos/list",
+							"host": [
+								"{{producto_url}}"
+							],
+							"path": [
+								"productos",
+								"list"
+							]
+						},
+						"description": "Endpoint público - No requiere autenticación"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Product by ID (PUBLIC)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"producto_id\": \"0cf2eedf-67e0-4aba-bc12-221f92dc0b29\",\n  \"local_id\": \"BURGER-LOCAL-001\"\n}"
+						},
+						"url": {
+							"raw": "{{producto_url}}/productos/id",
+							"host": [
+								"{{producto_url}}"
+							],
+							"path": [
+								"productos",
+								"id"
+							]
+						},
+						"description": "Endpoint público - No requiere autenticación"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Product (GERENTE)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token_gerente}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Hamburguesa Clásica\",\n  \"descripcion\": \"Carne, lechuga, tomate, queso\",\n  \"categoria\": \"Hamburguesas\",\n  \"precio\": 15.50,\n  \"stock\": 100,\n  \"local_id\": \"BURGER-LOCAL-001\"\n}"
+						},
+						"url": {
+							"raw": "{{producto_url}}/productos/create",
+							"host": [
+								"{{producto_url}}"
+							],
+							"path": [
+								"productos",
+								"create"
+							]
+						},
+						"description": "Requiere rol: Gerente o Admin"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Product (GERENTE)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token_gerente}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"producto_id\": \"prod-1b64292c\",\n  \"local_id\": \"BURGER-LOCAL-001\"\n}"
+						},
+						"url": {
+							"raw": "{{producto_url}}/productos/delete",
+							"host": [
+								"{{producto_url}}"
+							],
+							"path": [
+								"productos",
+								"delete"
+							]
+						},
+						"description": "Requiere rol: Gerente o Admin"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "3. Orders (Pedidos)",
+			"item": [
+				{
+					"name": "Create Order (USUARIO)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token_cliente}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"local_id\": \"BURGER-LOCAL-001\",\n  \"productos\": [\n    {\n      \"producto_id\": \"2c9eda9d-16e0-4abd-87f5-9c5673e2a778\",\n      \"cantidad\": 2\n    }\n  ],\n  \"direccion\": \"Av. Principal 123, Lima\",\n  \"costo\": 47.50\n}"
+						},
+						"url": {
+							"raw": "{{order_url}}/pedido",
+							"host": [
+								"{{order_url}}"
+							],
+							"path": [
+								"pedido"
+							]
+						},
+						"description": "Requiere rol: Usuario o Admin"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Order Status (ANY AUTH)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token_usuario}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/pedido/status?local_id=BURGER-LOCAL-001&pedido_id=abc-123-456",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"pedido",
+								"status"
+							],
+							"query": [
+								{
+									"key": "local_id",
+									"value": "BURGER-LOCAL-001"
+								},
+								{
+									"key": "pedido_id",
+									"value": "abc-123-456"
+								}
+							]
+						},
+						"description": "Requiere autenticación (cualquier rol)"
+					},
+					"response": []
+				},
+				{
+					"name": "List My Orders (USUARIO)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token_cliente}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{order_url}}/pedidos/mis-pedidos?limit=10",
+							"host": [
+								"{{order_url}}"
+							],
+							"path": [
+								"pedidos",
+								"mis-pedidos"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Usuario ve solo sus propios pedidos"
+					},
+					"response": []
+				},
+				{
+					"name": "List All Orders (COCINERO/REPARTIDOR)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token_cocina}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{order_url}}/pedidos/todos?limit=20",
+							"host": [
+								"{{order_url}}"
+							],
+							"path": [
+								"pedidos",
+								"todos"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "20"
+								}
+							]
+						},
+						"description": "Requiere rol: Cocinero o Repartidor"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "4. Kitchen (Cocina)",
+			"item": [
+				{
+					"name": "List Pending Orders (COCINERO)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token_cocina}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{cocina_url}}/cocina/pendientes",
+							"host": [
+								"{{cocina_url}}"
+							],
+							"path": [
+								"cocina",
+								"pendientes"
+							]
+						},
+						"description": "Requiere rol: Cocinero o Admin"
+					},
+					"response": []
+				},
+				{
+					"name": "List Cooking Orders (COCINERO)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token_cocina}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{cocina_url}}/cocina/en-curso",
+							"host": [
+								"{{cocina_url}}"
+							],
+							"path": [
+								"cocina",
+								"en-curso"
+							]
+						},
+						"description": "Requiere rol: Cocinero o Admin"
+					},
+					"response": []
+				},
+				{
+					"name": "Confirm Order (COCINERO)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token_cocina}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"order_id\": \"7bd923e1-ae84-442a-82d1-163bdfa81b83\",\n  \"decision\": \"ACEPTAR\"\n}"
+						},
+						"url": {
+							"raw": "{{cocina_url}}/cocina/confirmar",
+							"host": [
+								"{{cocina_url}}"
+							],
+							"path": [
+								"cocina",
+								"confirmar"
+							]
+						},
+						"description": "Requiere rol: Cocinero o Admin. Decision: ACEPTAR o RECHAZAR"
+					},
+					"response": []
+				},
+				{
+					"name": "Complete Cooking (COCINERO)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token_cocina}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"order_id\": \"7bd923e1-ae84-442a-82d1-163bdfa81b83\"\n}"
+						},
+						"url": {
+							"raw": "{{cocina_url}}/cocina/terminar",
+							"host": [
+								"{{cocina_url}}"
+							],
+							"path": [
+								"cocina",
+								"terminar"
+							]
+						},
+						"description": "Requiere rol: Cocinero o Admin"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "5. Delivery (Entrega)",
+			"item": [
+				{
+					"name": "List Available Orders (REPARTIDOR)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token_delivery}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{delivery_url}}/delivery/disponibles",
+							"host": [
+								"{{delivery_url}}"
+							],
+							"path": [
+								"delivery",
+								"disponibles"
+							]
+						},
+						"description": "Requiere rol: Repartidor o Admin"
+					},
+					"response": []
+				},
+				{
+					"name": "List My Deliveries (REPARTIDOR)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token_delivery}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{delivery_url}}/delivery/mis-pedidos",
+							"host": [
+								"{{delivery_url}}"
+							],
+							"path": [
+								"delivery",
+								"mis-pedidos"
+							]
+						},
+						"description": "Requiere rol: Repartidor o Admin"
+					},
+					"response": []
+				},
+				{
+					"name": "Take Order (REPARTIDOR)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token_delivery}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"order_id\": \"7bd923e1-ae84-442a-82d1-163bdfa81b83\"\n}"
+						},
+						"url": {
+							"raw": "{{delivery_url}}/delivery/tomar",
+							"host": [
+								"{{delivery_url}}"
+							],
+							"path": [
+								"delivery",
+								"tomar"
+							]
+						},
+						"description": "Requiere rol: Repartidor o Admin"
+					},
+					"response": []
+				},
+				{
+					"name": "Complete Delivery (REPARTIDOR)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token_delivery}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"order_id\": \"7bd923e1-ae84-442a-82d1-163bdfa81b83\"\n}"
+						},
+						"url": {
+							"raw": "{{delivery_url}}/delivery/entregar",
+							"host": [
+								"{{delivery_url}}"
+							],
+							"path": [
+								"delivery",
+								"entregar"
+							]
+						},
+						"description": "Requiere rol: Repartidor o Admin"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "user_url",
+			"value": "https://REEMPLAZAR_CON_TU_API_URL.execute-api.us-east-1.amazonaws.com"
+		},
+		{
+			"key": "cocina_url",
+			"value": ""
+		},
+		{
+			"key": "producto_url",
+			"value": ""
+		},
+		{
+			"key": "delivery_url",
+			"value": ""
+		},
+		{
+			"key": "work_url",
+			"value": ""
+		},
+		{
+			"key": "order_url",
+			"value": ""
+		},
+		{
+			"key": "token_gerente",
+			"value": ""
+		},
+		{
+			"key": "token_cliente",
+			"value": ""
+		},
+		{
+			"key": "token_cocina",
+			"value": ""
+		},
+		{
+			"key": "token_delivery",
+			"value": ""
+		}
+	]
+}
